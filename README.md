@@ -44,6 +44,6 @@ nix run .#project --experimental-features 'nix-command flakes'
 Depending on the shell you are running nix, you have to tweak the the command shown above this might be some variants:
 
 ```bash
-nix run .\#balancer --experimental-features 'nix-command flakes'
-nix run '.#balancer' --experimental-features 'nix-command flakes'
+nix run .\#project --experimental-features 'nix-command flakes'
+nix run '.#project' --experimental-features 'nix-command flakes'
 ```
