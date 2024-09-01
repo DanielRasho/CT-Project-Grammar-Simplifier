@@ -1,50 +1,87 @@
+/*
+El DFA (Autómata Finito Determinista) se compone de estados, transiciones, un estado inicial y estados de aceptación.
+Los estados representan conjuntos de estados de un NFA, y las transiciones definen cómo se mueve el DFA entre estos estados basados en los símbolos del alfabeto.
+
+Un DFA garantiza que para cada estado y símbolo del alfabeto, exista a lo sumo una transición hacia otro estado, eliminando la indeterminación presente en un NFA.
+*/
+
 package dfa
 
-import "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
+import (
+	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
+)
 
-// State representa un estado en el AFD, que es un conjunto de estados de NFA.
-type State struct {
-	Name    string       // Nombre del estado en el AFD.
-	IsFinal bool         // Indica si es un estado de aceptación.
-	States  []*nfa.State // Estados del NFA que componen este estado del AFD.
+/**
+ * DFAState representa un conjunto de estados del NFA que forman un único estado en el DFA.
+ *
+ * Atributos:
+ *  - Name: Nombre del estado en el DFA.
+ *  - IsFinal: Indica si el estado es final.
+ *  - StateSet: Conjunto de estados del NFA que componen este estado del DFA.
+ */
+type DFAState struct {
+	Name     string
+	IsFinal  bool
+	StateSet map[*nfaAutomata.State]bool
 }
 
-// Transition representa una transición en el AFD.
-type Transition struct {
-	From   *State // Estado de origen de la transición.
-	To     *State // Estado destino de la transición.
-	Symbol string // Símbolo que etiqueta la transición.
-}
-
-// DFA representa un autómata finito determinista.
+/**
+ * DFA representa un autómata finito determinista.
+ *
+ * Atributos:
+ *  - StartState: Estado inicial del DFA.
+ *  - States: Lista de estados que componen el DFA.
+ *  - Transitions: Mapa de transiciones entre los estados del DFA.
+ */
 type DFA struct {
-	States       map[string]*State
-	InitialState *State
-	Transitions  []Transition
+	StartState  *DFAState
+	States      []*DFAState
+	Transitions map[*DFAState]map[string]*DFAState
 }
 
-// NewState crea un nuevo estado de AFD.
-func NewState(name string, isFinal bool, nfaStates []*nfa.State) *State {
-	return &State{
-		Name:    name,
-		IsFinal: isFinal,
-		States:  nfaStates,
-	}
-}
-
-// NewTransition crea una nueva transición en el AFD.
-func NewTransition(from *State, to *State, symbol string) Transition {
-	return Transition{
-		From:   from,
-		To:     to,
-		Symbol: symbol,
-	}
-}
-
-// NewDFA crea un nuevo AFD vacío.
+/**
+ * NewDFA crea y retorna un nuevo DFA vacío.
+ *
+ * Retorno:
+ *  - Un puntero a la estructura DFA inicializada.
+ */
 func NewDFA() *DFA {
 	return &DFA{
-		States:      make(map[string]*State),
-		Transitions: make([]Transition, 0),
+		Transitions: make(map[*DFAState]map[string]*DFAState),
 	}
+}
+
+/**
+ * addState agrega un nuevo estado al DFA con un nombre generado automáticamente.
+ *
+ * Parámetros:
+ *  - isFinal: Un booleano que indica si el estado es final.
+ *  - stateSet: Un mapa que representa el conjunto de estados del NFA que conforman este estado en el DFA.
+ *
+ * Retorno:
+ *  - Un puntero al nuevo estado del DFA creado.
+ */
+func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool) *DFAState {
+	newState := &DFAState{
+		Name:     getStateName(),
+		IsFinal:  isFinal,
+		StateSet: stateSet,
+	}
+	dfa.States = append(dfa.States, newState)
+	return newState
+}
+
+/**
+ * addTransition agrega una transición entre estados al DFA.
+ *
+ * Parámetros:
+ *  - from: Un puntero al estado origen de la transición.
+ *  - symbol: El símbolo de entrada que dispara la transición.
+ *  - to: Un puntero al estado destino de la transición.
+ */
+func (dfa *DFA) addTransition(from *DFAState, symbol string, to *DFAState) {
+	if dfa.Transitions[from] == nil {
+		dfa.Transitions[from] = make(map[string]*DFAState)
+	}
+	dfa.Transitions[from][symbol] = to
 }

@@ -27,29 +27,35 @@ Parámetros:
 - nfaList: Lista de AFNs generados a partir de los AST.
 Retorno: Ninguno.
 */
-func PrintAllResults(index int, erList []string, postfixList []string, astList []ast.Node, nfaList []*nfaAutomata.NFA) {
-	if index < 0 || index >= len(erList) {
+func PrintAllResults(index int, results []RegexResult) {
+	if index < 0 || index >= len(results) {
 		fmt.Println("Índice fuera de rango")
 		return
 	}
+
+	result := results[index]
 
 	fmt.Printf("==================================\n")
 	fmt.Printf("| RESULTADOS PARA LA POSICIÓN %d |\n", index)
 	fmt.Printf("==================================\n")
 
-	// Imprime la línea leída
-	fmt.Printf("\nExpresión regular leída %d: %s\n", index+1, erList[index])
+	// Imprime la expresión regular leída
+	fmt.Printf("\nExpresión regular leída %d: %s\n", index+1, result.OriginalRegex)
 
 	// Imprime el postfix
-	fmt.Printf("\nPostfix: %s\n", postfixList[index])
+	fmt.Printf("\nPostfix: %s\n", result.Postfix)
 
 	// Imprime el AST
 	fmt.Println("\nEl AST resultante es:")
-	PrintASTTree(astList[index], 0)
+	PrintASTTree(result.AST, 0)
 
 	// Imprime el NFA
 	fmt.Println("\nEl NFA resultante es:")
-	PrintNFA(nfaList[index])
+	PrintNFA(result.NFA)
+
+	// Imprime el DFA
+	fmt.Println("\nEl DFA resultante es:")
+	PrintDFA(result.DFA)
 }
 
 /*
@@ -117,18 +123,19 @@ Parámetros:
 Retorno: Ninguno.
 */
 func PrintDFA(dfa *dfaAutomata.DFA) {
-	fmt.Printf("Estado inicial: %s\n", dfa.InitialState.Name)
+	fmt.Printf("Estado inicial: %s\n", dfa.StartState.Name)
 	fmt.Println("Estados finales:")
 	for _, state := range dfa.States {
 		if state.IsFinal {
-			fmt.Println("  ", state.Name)
+			fmt.Printf("  %s\n", state.Name)
 		}
 	}
 
 	fmt.Println("Transiciones:")
-	for _, transition := range dfa.Transitions {
-		toState := transition.To.Name
-		fmt.Printf("  Desde: %s -> Hasta: %s con símbolo: %s\n", transition.From.Name, toState, transition.Symbol)
+	for fromState, transitions := range dfa.Transitions {
+		for symbol, toState := range transitions {
+			fmt.Printf("  Desde: %s -> Hasta: [%s] con símbolo: %s\n", fromState.Name, toState.Name, symbol)
+		}
 	}
 }
 
@@ -250,8 +257,8 @@ Retorno:
     el AST generado, el NFA y el DFA.
   - error: Error en caso de que ocurra algún problema durante la lectura del archivo o el procesamiento de las expresiones.
 */
-func RegexFile(filePath string) ([]RegexProcessResult, error) {
-	var results []RegexProcessResult
+func RegexFile(filePath string) ([]RegexResult, error) {
+	var results []RegexResult
 
 	// Llama a la función de lectura de archivo
 	lines, err := io.ReaderTXT(filePath)
@@ -273,7 +280,7 @@ func RegexFile(filePath string) ([]RegexProcessResult, error) {
 		nfa := nfaAutomata.BuildNFA(root)
 
 		// Convertir a DFA
-		dfa := dfaAutomata.ConvertNFAtoAFD(nfa)
+		dfa := dfaAutomata.BuildDFA(nfa)
 
 		// Renderizar el NFA
 		err := nfaAutomata.RenderAFN(nfa, fmt.Sprintf("./graphs/NFA/nfa_%d_%s.png", index, line))
@@ -288,7 +295,7 @@ func RegexFile(filePath string) ([]RegexProcessResult, error) {
 		// }
 
 		// Agregar el resultado al listado
-		results = append(results, RegexProcessResult{
+		results = append(results, RegexResult{
 			OriginalRegex: line,
 			Postfix:       postfix,
 			AST:           root,
@@ -296,6 +303,9 @@ func RegexFile(filePath string) ([]RegexProcessResult, error) {
 			DFA:           dfa,
 		})
 	}
+
+	// Imprimir resultados para la primera expresión regular
+	PrintAllResults(0, results)
 
 	return results, nil
 }
@@ -310,7 +320,7 @@ Campos:
   - NFA: El autómata finito no determinista (NFA) generado a partir del AST.
   - DFA: El autómata finito determinista (DFA) convertido desde el NFA.
 */
-type RegexProcessResult struct {
+type RegexResult struct {
 	OriginalRegex string
 	Postfix       string
 	AST           ast.Node
@@ -328,7 +338,7 @@ Parámetros:
 Retorno:
   - Ninguno.
 */
-func MenuRegexFile(results []RegexProcessResult) {
+func MenuRegexFile(results []RegexResult) {
 	// Mostrar las expresiones regulares procesadas
 	fmt.Println("\n🔍 Selecciona una expresión regular para simular:")
 	for i, result := range results {
@@ -336,7 +346,7 @@ func MenuRegexFile(results []RegexProcessResult) {
 	}
 
 	// Solicitar al usuario seleccionar una opción
-	fmt.Print("➡️ Ingresa el número de la expresión regular que deseas simular (o '0' para salir): ")
+	fmt.Print("➡️  Ingresa el número de la expresión regular que deseas simular (o '0' para salir): ")
 	var choice int
 	fmt.Scanln(&choice)
 

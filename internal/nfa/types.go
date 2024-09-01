@@ -69,3 +69,43 @@ func ExtractSymbols(nfa *NFA) []string {
 	}
 	return symbols
 }
+
+// DFAState representa un conjunto de estados del AFN que forman un único estado en el AFD.
+type DFAState struct {
+	Name     string
+	IsFinal  bool
+	StateSet map[*State]bool
+}
+
+// DFA representa un autómata finito determinista.
+type DFA struct {
+	StartState  *DFAState
+	States      []*DFAState
+	Transitions map[*DFAState]map[string]*DFAState
+}
+
+// NewDFA crea un nuevo DFA vacío.
+func NewDFA() *DFA {
+	return &DFA{
+		Transitions: make(map[*DFAState]map[string]*DFAState),
+	}
+}
+
+// addState agrega un nuevo estado al DFA.
+func (dfa *DFA) addState(name string, isFinal bool, stateSet map[*State]bool) *DFAState {
+	newState := &DFAState{
+		Name:     name,
+		IsFinal:  isFinal,
+		StateSet: stateSet,
+	}
+	dfa.States = append(dfa.States, newState)
+	return newState
+}
+
+// addTransition agrega una transición al DFA.
+func (dfa *DFA) addTransition(from *DFAState, symbol string, to *DFAState) {
+	if dfa.Transitions[from] == nil {
+		dfa.Transitions[from] = make(map[string]*DFAState)
+	}
+	dfa.Transitions[from][symbol] = to
+}

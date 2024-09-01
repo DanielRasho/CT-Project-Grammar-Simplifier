@@ -1,6 +1,6 @@
 # Proceso de Conversión de AFN a AFD
 
-### Primer Paso: Construcción de la Tabla de Transiciones
+## Primer Paso: Construcción de la Tabla de Transiciones
 
 1. **Estados y Transiciones:**
    - Identifica todos los estados y transiciones del AFN.
@@ -22,7 +22,7 @@
 | ...        | ...              | ...              | ...           |
 | EstadoN    | {}               | {Estado1}        | {EstadoN, ...}|
 
-### Segundo Paso: Construcción del AFD
+## Segundo Paso: Construcción del AFD
 
 1. **Inicio con el Conjunto del Estado Inicial:**
    - Comienza con el ε-cierre del estado inicial del AFN y asígnale una etiqueta (por ejemplo, "A").
@@ -44,7 +44,7 @@
 | {Estado2, ...} = B  | {Estado4, ...} = D | {} = E          | ... |
 | ...                 | ...              | ...              | ...              |
 
-### Tercer Paso: Diagramación del AFD
+## Tercer Paso: Diagramación del AFD
 
 1. **Creación del Diagrama:**
    - Utiliza la tabla resultante para construir el diagrama del AFD.

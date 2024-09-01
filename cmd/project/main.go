@@ -15,7 +15,7 @@ func main() {
 		fmt.Println("1. Ingresar una nueva expresión regular")
 		fmt.Println("2. Procesar expresiones regulares desde un archivo")
 		fmt.Println("0. Salir")
-		fmt.Print("➡️ Selecciona una opción: ")
+		fmt.Print("➡️  Selecciona una opción: ")
 
 		var choice int
 		_, err := fmt.Scanln(&choice)

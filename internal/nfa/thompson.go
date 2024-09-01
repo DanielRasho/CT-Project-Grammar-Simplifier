@@ -1,6 +1,7 @@
 /*
 Package nondeterministic_finite_automaton proporciona una implementación para construir y manejar Autómatas Finitos No Deterministas (nfa) a partir de expresiones representadas en un Árbol de Sintaxis Abstracta (AST).
 */
+
 package nfa
 
 import (
