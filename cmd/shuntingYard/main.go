@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/IO"
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
+	shuttingyard "github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	i := 0
 	for fileReader.NextLine(&line) {
 		fmt.Printf("\nLINE %d\n", i)
-		postFix, _, _ := shuntingyard.RegexToPostfix(strings.Trim(line, "\n"), false)
+		postFix, _, _ := shuttingyard.RegexToPostfix(strings.Trim(line, "\n"), false)
 		fmt.Printf("RESPONSE: %s\n", postFix)
 		i++
 	}

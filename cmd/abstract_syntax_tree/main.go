@@ -5,14 +5,14 @@ import (
 	"strings"
 
 	ast "github.com/DanielRasho/TC-1-ShuntingYard/internal/abstract_syntax_tree"
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/utils"
+	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/io"
+	shuttingyard "github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
 )
 
 func main() {
 
 	// Llama a la función de lectura de archivo
-	lines, err := utils.ReaderTXT("input_data/ast.txt")
+	lines, err := io.ReaderTXT("input_data/ast.txt")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -24,7 +24,7 @@ func main() {
 	// Procesa cada línea leída del archivo
 	for i, line := range lines {
 		// Convierte la expresión regular a postfix usando Shunting Yard
-		postfix, _, _ := shuntingyard.RegexToPostfix(line, false)
+		postfix, _, _ := shuttingyard.RegexToPostfix(line, false)
 		// fmt.Print("Se hizo el postfix: ", postfix, "\n")
 
 		// Construye el AST a partir del postfix

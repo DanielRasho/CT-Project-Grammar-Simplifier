@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/balancer"
+	balancer "github.com/DanielRasho/TC-1-ShuntingYard/internal/balancer"
 )
 
 func main() {

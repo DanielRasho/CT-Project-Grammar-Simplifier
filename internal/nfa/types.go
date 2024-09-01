@@ -52,3 +52,20 @@ func NewNFA(startState *State, endState *State, transitions []Transition) *NFA {
 		Transitions: transitions,
 	}
 }
+
+// ExtractSymbols extrae todos los símbolos únicos de las transiciones en un NFA.
+func ExtractSymbols(nfa *NFA) []string {
+	symbolSet := make(map[string]bool)
+	for _, t := range nfa.Transitions {
+		if t.Symbol != "ε" { // Ignorar las transiciones epsilon para la construcción de DFA.
+			symbolSet[t.Symbol] = true
+		}
+	}
+
+	// Convertir el mapa a una lista para su uso.
+	var symbols []string
+	for symbol := range symbolSet {
+		symbols = append(symbols, symbol)
+	}
+	return symbols
+}

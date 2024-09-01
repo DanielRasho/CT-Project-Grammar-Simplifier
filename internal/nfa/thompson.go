@@ -6,7 +6,7 @@ package nfa
 import (
 	"fmt"
 
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/abstract_syntax_tree"
+	ast "github.com/DanielRasho/TC-1-ShuntingYard/internal/abstract_syntax_tree"
 )
 
 /*
@@ -68,13 +68,13 @@ Retorno:
 Panic:
   - Si el nodo AST contiene un operador no soportado o si la cantidad de operandos no es la esperada.
 */
-func BuildNFA(node abstract_syntax_tree.Node) *NFA {
+func BuildNFA(node ast.Node) *NFA {
 	var nfa *NFA
 
 	switch n := node.(type) {
-	case *abstract_syntax_tree.CharacterNode:
+	case *ast.CharacterNode:
 		nfa = nfaBasic(n.Value)
-	case *abstract_syntax_tree.OperatorNode:
+	case *ast.OperatorNode:
 		switch n.Value {
 		case "·":
 			nfa = nfaConcatenation(n.Operands)
@@ -139,7 +139,7 @@ Retorno:
 Panic:
   - Si el número de operandos no es exactamente 2.
 */
-func nfaConcatenation(operands []abstract_syntax_tree.Node) *NFA {
+func nfaConcatenation(operands []ast.Node) *NFA {
 	if len(operands) != 2 {
 		panic("nfaConcatenation expects exactly 2 operands")
 	}
@@ -179,7 +179,7 @@ Retorno:
 Panic:
   - Si el número de operandos no es exactamente 2.
 */
-func nfaUnion(operands []abstract_syntax_tree.Node) *NFA {
+func nfaUnion(operands []ast.Node) *NFA {
 	if len(operands) != 2 {
 		panic("nfaUnion expects exactly 2 operands")
 	}
@@ -223,7 +223,7 @@ Retorno:
 Panic:
   - Si el número de operandos no es exactamente 1.
 */
-func nfaKleene(operands []abstract_syntax_tree.Node) *NFA {
+func nfaKleene(operands []ast.Node) *NFA {
 	if len(operands) != 1 {
 		panic("nfaKleene expects exactly 1 operand")
 	}

@@ -7,7 +7,7 @@ package abstract_syntax_tree
 import (
 	"strings"
 
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
+	shuntingyard "github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
 )
 
 /*

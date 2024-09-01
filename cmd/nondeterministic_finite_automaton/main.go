@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	ast "github.com/DanielRasho/TC-1-ShuntingYard/internal/abstract_syntax_tree"
+	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/io"
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/utils"
+	runner "github.com/DanielRasho/TC-1-ShuntingYard/internal/runner_simulation"
+	shuttingyard "github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
 )
 
 /**
@@ -25,7 +26,7 @@ import (
  */
 func main() {
 	// Llama a la función de lectura de archivo
-	lines, err := utils.ReaderTXT("input_data/thompson.txt")
+	lines, err := io.ReaderTXT("input_data/thompson.txt")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -35,7 +36,7 @@ func main() {
 	for index, line := range lines {
 
 		// Convierte la expresión regular a postfix usando Shunting Yard
-		postfix, _, _ := shuntingyard.RegexToPostfix(line, false)
+		postfix, _, _ := shuttingyard.RegexToPostfix(line, false)
 
 		// Construye el AST a partir del postfix
 		root := ast.BuildAST(postfix)
@@ -67,7 +68,7 @@ func main() {
 		}
 
 		// Convierte la expresión regular a postfix usando Shunting Yard
-		postfix, _, _ := shuntingyard.RegexToPostfix(newRegex, false)
+		postfix, _, _ := shuttingyard.RegexToPostfix(newRegex, false)
 		// Construye el AST a partir del postfix
 		root := ast.BuildAST(postfix)
 		// Construye el AFN a partir del AST
@@ -89,7 +90,7 @@ func main() {
 		fmt.Printf("\t🤫 Susurro: escogiste la expresión regular '%s' para leer la cadena '%s'\n", newRegex, cadena)
 
 		// Ejecutar la simulación del AFN con la cadena
-		resultado := nfaAutomata.RunnerNFA(nfa, cadena)
+		resultado := runner.RunnerNFA(nfa, cadena)
 
 		// Mostrar el resultado de la simulación
 		if resultado {
@@ -101,12 +102,4 @@ func main() {
 
 		fmt.Println("\n-----------------------------------------")
 	}
-
-	// Prueba de lectura de nuevos datos ingresados
-	//PrintAllResults(4, erList, postfixList, astList, nfaList)
-
-	// Graficar todos los AFNs al final (comentado en este ejemplo)
-	// for i, nfa := range nfaList {
-	// 	// Guardar los png en ./graphs/afn
-	// }
 }

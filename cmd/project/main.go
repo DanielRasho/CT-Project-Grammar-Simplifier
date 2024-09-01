@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	fmt.Println("🔄 Simulador de expresiones regulares con AFN y AFD 🔄")
+
 }
