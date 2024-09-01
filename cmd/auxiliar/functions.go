@@ -154,7 +154,7 @@ Parámetros: Ninguno.
 
 Retorno: Ninguno.
 */
-func InteractiveRegexSimulation() {
+func MyRegex() {
 	for {
 		fmt.Print("\n➡️  Ingresa una nueva expresión regular (utiliza ε para cadena vacía) o '0' para salir: ")
 		var newRegex string
@@ -173,7 +173,7 @@ func InteractiveRegexSimulation() {
 		// Construye el AFN a partir del AST
 		nfa := nfaAutomata.BuildNFA(root)
 		// Construye el AFD
-		dfa := dfaAutomata.ConvertNFAtoAFD(nfa)
+		// dfa := dfaAutomata.ConvertNFAtoAFD(nfa)
 
 		// Renderiza el NFA
 		nfaFilename := fmt.Sprintf("./graphs/NFA/nfa_%s.png", newRegex)
@@ -185,13 +185,13 @@ func InteractiveRegexSimulation() {
 		}
 
 		// Renderiza el DFA
-		dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
-		err = dfaAutomata.RenderDFA(dfa, dfaFilename)
-		if err != nil {
-			fmt.Println("Error rendering DFA:", err)
-		} else {
-			fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
-		}
+		// dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
+		// err = dfaAutomata.RenderDFA(dfa, dfaFilename)
+		// if err != nil {
+		// 	fmt.Println("Error rendering DFA:", err)
+		// } else {
+		// 	fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
+		// }
 
 		// Simular el AFN con una cadena dada por el usuario
 		fmt.Print("➡️  Ingresa la cadena a evaluar: ")
@@ -202,30 +202,38 @@ func InteractiveRegexSimulation() {
 
 		// Ejecutar la simulación del AFN y AFD con la cadena
 		resultado_nfa := runner.RunnerNFA(nfa, cadena)
-		resultado_dfa := runner.RunnerNFA(dfa, cadena)
+		// resultado_dfa := runner.RunnerDFA(dfa, cadena)
 
 		// Mostrar el resultado de la simulación usando la nueva función
-		RunnerSimulation(resultado_nfa, resultado_dfa, cadena, newRegex)
+		RunnerSimulation(resultado_nfa, true, cadena, newRegex)
 	}
 }
 
 /*
-DisplaySimulationResult muestra el resultado de la simulación del AFN con la cadena proporcionada por el usuario.
-Dependiendo de si la cadena pertenece al lenguaje definido por la expresión regular o no, se imprime un mensaje correspondiente.
+RunnerSimulation muestra el resultado de la simulación del AFN y del AFD con la cadena proporcionada por el usuario.
+Dependiendo de si la cadena pertenece al lenguaje definido por la expresión regular o no, se imprime un mensaje correspondiente para cada uno.
 
 Parámetros:
-  - resultado: Resultado de la simulación, un booleano que indica si la cadena pertenece o no al lenguaje.
+  - resultado_dfa: Resultado de la simulación del AFD, un booleano que indica si la cadena pertenece o no al lenguaje.
+  - resultado_nfa: Resultado de la simulación del AFN, un booleano que indica si la cadena pertenece o no al lenguaje.
   - cadena: La cadena de entrada proporcionada por el usuario.
   - regex: La expresión regular utilizada para la simulación.
 
 Retorno: Ninguno.
 */
-func RunnerSimulation(resultado_dfa bool, resultado_nfa bool, cadena, regex string) {
+func RunnerSimulation(resultado_dfa, resultado_nfa bool, cadena, regex string) {
 	if resultado_nfa {
-		fmt.Printf("✅ Resultado de la simulación: la cadena '%s' ∈ L(%s)\n", cadena, regex)
+		fmt.Printf("✅ (AFN) Resultado de la simulación: la cadena '%s' ∈ L(%s)\n", cadena, regex)
 	} else {
-		fmt.Printf("❌ Resultado de la simulación: la cadena '%s' ∉ L(%s)\n", cadena, regex)
+		fmt.Printf("❌ (AFN) Resultado de la simulación: la cadena '%s' ∉ L(%s)\n", cadena, regex)
 	}
+
+	if resultado_dfa {
+		fmt.Printf("✅ (AFD) Resultado de la simulación: la cadena '%s' ∈ L(%s)\n", cadena, regex)
+	} else {
+		fmt.Printf("❌ (AFD) Resultado de la simulación: la cadena '%s' ∉ L(%s)\n", cadena, regex)
+	}
+
 	fmt.Println("\n-----------------------------------------")
 }
 
@@ -242,7 +250,7 @@ Retorno:
     el AST generado, el NFA y el DFA.
   - error: Error en caso de que ocurra algún problema durante la lectura del archivo o el procesamiento de las expresiones.
 */
-func ProcessRegexFromFile(filePath string) ([]RegexProcessResult, error) {
+func RegexFile(filePath string) ([]RegexProcessResult, error) {
 	var results []RegexProcessResult
 
 	// Llama a la función de lectura de archivo
@@ -274,10 +282,10 @@ func ProcessRegexFromFile(filePath string) ([]RegexProcessResult, error) {
 		}
 
 		// Renderizar el DFA
-		err = dfaAutomata.RenderDFA(dfa, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
-		if err != nil {
-			fmt.Println("Error rendereizado de DFA:", err)
-		}
+		// err = dfaAutomata.RenderDFA(dfa, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
+		// if err != nil {
+		// 	fmt.Println("Error rendereizado de DFA:", err)
+		// }
 
 		// Agregar el resultado al listado
 		results = append(results, RegexProcessResult{
@@ -308,4 +316,56 @@ type RegexProcessResult struct {
 	AST           ast.Node
 	NFA           *nfaAutomata.NFA
 	DFA           *dfaAutomata.DFA
+}
+
+/*
+MenuForSimulationFromResults muestra un menú con las expresiones regulares procesadas y permite al usuario
+seleccionar una para simular su NFA y DFA. Luego, ejecuta la simulación y muestra los resultados.
+
+Parámetros:
+  - results: Lista de resultados procesados que incluye las expresiones regulares, el postfix, el AST, el NFA y el DFA.
+
+Retorno:
+  - Ninguno.
+*/
+func MenuRegexFile(results []RegexProcessResult) {
+	// Mostrar las expresiones regulares procesadas
+	fmt.Println("\n🔍 Selecciona una expresión regular para simular:")
+	for i, result := range results {
+		fmt.Printf("%d. %s\n", i+1, result.OriginalRegex)
+	}
+
+	// Solicitar al usuario seleccionar una opción
+	fmt.Print("➡️ Ingresa el número de la expresión regular que deseas simular (o '0' para salir): ")
+	var choice int
+	fmt.Scanln(&choice)
+
+	// Salir si el usuario ingresa "0"
+	if choice == 0 {
+		fmt.Println("\n🚪 Saliendo del menú... 🚪")
+		return
+	}
+
+	// Validar la selección del usuario
+	if choice < 1 || choice > len(results) {
+		fmt.Println("Opción inválida. Por favor selecciona un número válido.")
+		return
+	}
+
+	// Obtener el resultado de la expresión regular seleccionada
+	selectedResult := results[choice-1]
+
+	// Simular el NFA y DFA con la expresión regular seleccionada
+	fmt.Print("➡️ Ingresa la cadena a evaluar: ")
+	var cadena string
+	fmt.Scanln(&cadena)
+
+	fmt.Printf("\t🤫 Susurro: escogiste la expresión regular '%s' para leer la cadena '%s'\n", selectedResult.OriginalRegex, cadena)
+
+	// Ejecutar la simulación del NFA y DFA con la cadena
+	resultado_nfa := runner.RunnerNFA(selectedResult.NFA, cadena)
+	//resultado_dfa := runner.RunnerDFA(selectedResult.DFA, cadena)
+
+	// Mostrar el resultado de la simulación usando la función RunnerSimulation
+	RunnerSimulation(true, resultado_nfa, cadena, selectedResult.OriginalRegex)
 }
