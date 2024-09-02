@@ -39,7 +39,7 @@ func BuildDFA(nfa *nfaAutomata.NFA) *DFA {
 	}
 
 	// Crear el estado inicial del DFA.
-	initialState := dfa.addState(isFinal, initialSet, true)
+	initialState := dfa.addState(isFinal, initialSet, true, []string{"nothing"})
 	dfa.StartState = initialState
 
 	// Lista de nuevos estados a procesar.
@@ -71,7 +71,7 @@ func BuildDFA(nfa *nfaAutomata.NFA) *DFA {
 						break
 					}
 				}
-				nextDFAState = dfa.addState(isNextFinal, nextSet, true)
+				nextDFAState = dfa.addState(isNextFinal, nextSet, true, []string{"nothing"})
 				unmarkedStates = append(unmarkedStates, nextDFAState)
 			}
 

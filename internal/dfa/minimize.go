@@ -8,7 +8,15 @@ import (
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
 )
 
-// MinimizeDFA recorre todos los estados del DFA e imprime los estados de aceptación y los que no son de aceptación.
+/**
+ * MinimizeDFA minimiza un DFA dado utilizando el algoritmo de minimización de particiones.
+ *
+ * Parámetros:
+ *  - dfa: Un puntero a la estructura DFA que se va a minimizar.
+ *
+ * Retorno:
+ *  - *DFA: Un puntero al DFA minimizado.
+ */
 func MinimizeDFA(dfa *DFA) *DFA {
 	// Categorías para almacenar los estados
 	var acceptedStates []*DFAState
@@ -37,6 +45,12 @@ func MinimizeDFA(dfa *DFA) *DFA {
 	newDFA := NewDFA()
 	stateMap := make(map[string]*DFAState)
 
+	// Recopilar nombres de estados existentes
+	var existingNames []string
+	for _, state := range dfa.States {
+		existingNames = append(existingNames, state.Name)
+	}
+
 	// Crear nuevos estados en el DFA basado en las particiones
 	for _, p := range finalPartitions {
 		stateSet := make(map[*nfaAutomata.State]bool)
@@ -61,7 +75,7 @@ func MinimizeDFA(dfa *DFA) *DFA {
 
 		// Crear un nuevo estado y agregarlo al nuevo DFA
 		stateName := generateStateName(p.Subsets) // Esto ahora usará los nombres del DFA original
-		newState := newDFA.addState(isFinal, stateSet, false)
+		newState := newDFA.addState(isFinal, stateSet, false, existingNames)
 		stateMap[stateName] = newState
 	}
 
@@ -89,7 +103,15 @@ func MinimizeDFA(dfa *DFA) *DFA {
 	return newDFA
 }
 
-// generateStateName genera un nombre único para un estado basado en los nombres de los estados del DFA original.
+/**
+ * generateStateName genera un nombre único para un estado basado en los nombres de los estados del DFA original.
+ *
+ * Parámetros:
+ *  - subsets: Un slice de punteros a estructuras subset que representan los estados en una partición.
+ *
+ * Retorno:
+ *  - string: Un nombre único generado para el nuevo estado del DFA.
+ */
 func generateStateName(subsets []*subset) string {
 	var stateNames []string
 	for _, s := range subsets {
@@ -101,7 +123,16 @@ func generateStateName(subsets []*subset) string {
 	return "{" + strings.Join(stateNames, ",") + "}"
 }
 
-// findPartition encuentra la partición a la que pertenece un estado.
+/**
+ * findPartition encuentra la partición a la que pertenece un estado.
+ *
+ * Parámetros:
+ *  - state: Un puntero al estado del DFA que se busca.
+ *  - partitions: Un slice de estructuras partition que representan las particiones actuales del DFA.
+ *
+ * Retorno:
+ *  - *subset: Un puntero al subset que contiene el estado dado.
+ */
 func findPartition(state *DFAState, partitions []partition) *subset {
 	for _, p := range partitions {
 		for _, s := range p.Subsets {
@@ -115,7 +146,16 @@ func findPartition(state *DFAState, partitions []partition) *subset {
 	return nil
 }
 
-// generateKey genera una clave única para un estado basado en sus transiciones.
+/**
+ * generateKey genera una clave única para un estado basado en sus transiciones.
+ *
+ * Parámetros:
+ *  - state: Un puntero al estado del DFA para el cual se genera la clave.
+ *  - transitions: Un mapa de transiciones del DFA que asocia estados con símbolos de entrada.
+ *
+ * Retorno:
+ *  - string: Una clave única generada para el estado basado en sus transiciones.
+ */
 func generateKey(state *DFAState, transitions map[*DFAState]map[string]*DFAState) string {
 	transitionsMap := transitions[state]
 	var keyParts []string
@@ -125,7 +165,16 @@ func generateKey(state *DFAState, transitions map[*DFAState]map[string]*DFAState
 	return strings.Join(keyParts, ",")
 }
 
-// doPartition divide los estados en particiones más pequeñas basadas en las transiciones.
+/**
+ * doPartition divide los estados en particiones más pequeñas basadas en las transiciones.
+ *
+ * Parámetros:
+ *  - initialPartition: La partición inicial que contiene los estados separados en aceptados y no aceptados.
+ *  - transitions: Un mapa de transiciones del DFA que asocia estados con símbolos de entrada.
+ *
+ * Retorno:
+ *  - []partition: Un slice de particiones resultantes después de aplicar la minimización.
+ */
 func doPartition(initialPartition partition, transitions map[*DFAState]map[string]*DFAState) []partition {
 	var partitions []partition
 	partitions = append(partitions, initialPartition)

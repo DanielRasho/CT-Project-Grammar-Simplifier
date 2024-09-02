@@ -15,9 +15,6 @@ import (
 
 var stateNameCounter = 0
 
-// Mapa global para almacenar las correspondencias de nombres durante la construcción del DFA
-var stateSetToName = make(map[string]string)
-
 /**
  * DFAState representa un conjunto de estados del NFA que forman un único estado en el DFA.
  *
@@ -62,7 +59,7 @@ type partition struct {
  * NewDFA crea y retorna un nuevo DFA vacío.
  *
  * Retorno:
- *  - Un puntero a la estructura DFA inicializada.
+ *  - *DFA: Un puntero a la estructura DFA inicializada.
  */
 func NewDFA() *DFA {
 	return &DFA{
@@ -76,18 +73,19 @@ func NewDFA() *DFA {
  * Parámetros:
  *  - isBuildingDFA: Un booleano que indica si estamos en la fase de construcción del DFA (true) o minimización (false).
  *  - stateSet: Un mapa que representa el conjunto de estados del NFA que conforman este estado en el DFA. Se usa solo si isBuildingDFA es false.
+ *  - existingNames: Un slice de strings que contiene los nombres de los estados existentes. Se usa para evitar duplicados y crear nombres únicos.
  *
  * Retorno:
- *  - Un string que representa el nombre del nuevo estado.
+ *  - string: Un string que representa el nombre del nuevo estado.
  */
-func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool) string {
+func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool, existingNames []string) string {
 	if !isBuildingDFA {
 		// Si no estamos construyendo el DFA, generar el nombre basado en el conjunto de estados
 		var names []string
 		for state := range stateSet {
 			names = append(names, state.Name)
 		}
-		return "{" + strings.Join(names, ",") + "}"
+		return "{" + strings.Join(existingNames, ",") + "}"
 	}
 
 	// Generar un nombre secuencial para la construcción del DFA
@@ -117,13 +115,14 @@ func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool) stri
  *  - isFinal: Un booleano que indica si el estado es final.
  *  - stateSet: Un mapa que representa el conjunto de estados del NFA que conforman este estado en el DFA.
  *  - isBuildingDFA: Un booleano que indica si estamos en la fase de construcción del DFA (true) o minimización (false).
+ *  - existingNames: Un slice de strings que contiene los nombres de los estados existentes, usado para asegurar la unicidad de los nombres.
  *
  * Retorno:
- *  - Un puntero al nuevo estado del DFA creado.
+ *  - *DFAState: Un puntero al nuevo estado del DFA creado.
  */
-func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool, isBuildingDFA bool) *DFAState {
+func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool, isBuildingDFA bool, existingNames []string) *DFAState {
 	newState := &DFAState{
-		Name:     getStateName(isBuildingDFA, stateSet),
+		Name:     getStateName(isBuildingDFA, stateSet, existingNames),
 		IsFinal:  isFinal,
 		StateSet: stateSet,
 	}

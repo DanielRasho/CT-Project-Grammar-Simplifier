@@ -377,7 +377,7 @@ func MenuRegexFile(results []RegexResult) {
 	selectedResult := results[choice-1]
 
 	// Simular el NFA y DFA con la expresión regular seleccionada
-	fmt.Print("➡️ Ingresa la cadena a evaluar: ")
+	fmt.Print("➡️  Ingresa la cadena a evaluar: ")
 	var cadena string
 	fmt.Scanln(&cadena)
 
