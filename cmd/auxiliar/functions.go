@@ -127,6 +127,13 @@ Parámetros:
 Retorno: Ninguno.
 */
 func PrintDFA(dfa *dfaAutomata.DFA) {
+	// Check if the DFA has any states
+	if len(dfa.States) == 0 {
+		panic("DFA has no states defined.")
+	}
+	if dfa.StartState == nil {
+		panic("NO DFA start states defined.")
+	}
 	fmt.Printf("Estado inicial: %s\n", dfa.StartState.Name)
 	fmt.Println("Estados finales:")
 	for _, state := range dfa.States {
@@ -198,15 +205,22 @@ func MyRegex() {
 		}
 
 		// Renderiza el DFA
-		/*
-			dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
-			err = dfaAutomata.RenderDFA(dfaM, dfaFilename)
-			if err != nil {
-				fmt.Println("Error rendering DFA:", err)
-			} else {
-				fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
-			}
-		*/
+		dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
+		err = dfaAutomata.RenderDFA(dfa, dfaFilename)
+		if err != nil {
+			fmt.Println("Error rendering DFA:", err)
+		} else {
+			fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
+		}
+
+		// Renderiza el DFA
+		dfaMFilename := fmt.Sprintf("./graphs/DFA/dfaMIN_%s.png", newRegex)
+		err = dfaAutomata.RenderDFA(dfaM, dfaMFilename)
+		if err != nil {
+			fmt.Println("Error rendering DFA:", err)
+		} else {
+			fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
+		}
 
 		// Simular el AFN con una cadena dada por el usuario
 		fmt.Print("➡️  Ingresa la cadena a evaluar: ")
