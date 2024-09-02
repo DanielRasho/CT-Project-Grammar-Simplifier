@@ -313,13 +313,15 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 			fmt.Println("Error renderizado de NFA:", err)
 		}
 
-		// Renderizar el DFA
-		/*
-			err = dfaAutomata.RenderDFA(dfaM, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
-			if err != nil {
-				fmt.Println("Error rendereizado de DFA:", err)
-			}
-		*/
+		err = dfaAutomata.RenderDFA(dfa, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
+		if err != nil {
+			fmt.Println("Error rendereizado de DFA:", err)
+		}
+
+		err = dfaAutomata.RenderDFA(dfaM, fmt.Sprintf("./graphs/DFA/dfaMIN_%d_%s.png", index, line))
+		if err != nil {
+			fmt.Println("Error rendereizado de DFA:", err)
+		}
 
 		// Agregar el resultado al listado
 		results = append(results, RegexResult{
@@ -332,8 +334,10 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 		})
 	}
 
-	// Imprimir resultados para la primera expresión regular
-	// PrintAllResults(0, results)
+	for i := 0; i < len(results); i++ {
+		// Imprimir resultados para la primera expresión regular
+		PrintAllResults(i, results)
+	}
 
 	return results, nil
 }
