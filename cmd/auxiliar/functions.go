@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"strings"
 
+	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/IO"
 	ast "github.com/DanielRasho/TC-1-ShuntingYard/internal/abstract_syntax_tree"
 	dfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/dfa"
-	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/io"
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
 	runner "github.com/DanielRasho/TC-1-ShuntingYard/internal/runner_simulation"
 	shuttingyard "github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
