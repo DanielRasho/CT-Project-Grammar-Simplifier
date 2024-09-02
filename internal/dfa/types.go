@@ -8,8 +8,15 @@ Un DFA garantiza que para cada estado y símbolo del alfabeto, exista a lo sumo 
 package dfa
 
 import (
+	"strings"
+
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
 )
+
+var stateNameCounter = 0
+
+// Mapa global para almacenar las correspondencias de nombres durante la construcción del DFA
+var stateSetToName = make(map[string]string)
 
 /**
  * DFAState representa un conjunto de estados del NFA que forman un único estado en el DFA.
@@ -39,6 +46,18 @@ type DFA struct {
 	Transitions map[*DFAState]map[string]*DFAState
 }
 
+// subset representa un conjunto de estados del DFA.
+type subset struct {
+	States []*DFAState
+	ID     int
+}
+
+// partition representa una partición del conjunto de estados del DFA.
+type partition struct {
+	Subsets []*subset
+	ID      int
+}
+
 /**
  * NewDFA crea y retorna un nuevo DFA vacío.
  *
@@ -52,18 +71,59 @@ func NewDFA() *DFA {
 }
 
 /**
- * addState agrega un nuevo estado al DFA con un nombre generado automáticamente.
+ * getStateName genera nombres de estados secuenciales como A, B, C, ..., Z, AA, AB, etc., manejando correctamente el ciclo después de Z.
+ *
+ * Parámetros:
+ *  - isBuildingDFA: Un booleano que indica si estamos en la fase de construcción del DFA (true) o minimización (false).
+ *  - stateSet: Un mapa que representa el conjunto de estados del NFA que conforman este estado en el DFA. Se usa solo si isBuildingDFA es false.
+ *
+ * Retorno:
+ *  - Un string que representa el nombre del nuevo estado.
+ */
+func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool) string {
+	if !isBuildingDFA {
+		// Si no estamos construyendo el DFA, generar el nombre basado en el conjunto de estados
+		var names []string
+		for state := range stateSet {
+			names = append(names, state.Name)
+		}
+		return "{" + strings.Join(names, ",") + "}"
+	}
+
+	// Generar un nombre secuencial para la construcción del DFA
+	counter := stateNameCounter
+	stateNameCounter++
+
+	var name strings.Builder
+	repeat := counter / 26 // Calcula cuántas veces se ha completado un ciclo completo a través del alfabeto
+
+	if repeat == 0 {
+		return string('A' + counter%26) // Caso simple para los primeros 26 estados
+	}
+
+	// Para estados después de 'Z', agregamos 'A' repetido y luego el siguiente carácter
+	for i := 0; i < repeat; i++ {
+		name.WriteByte('A')
+	}
+	name.WriteByte(byte('A' + counter%26))
+
+	return name.String()
+}
+
+/**
+ * addState agrega un nuevo estado al DFA.
  *
  * Parámetros:
  *  - isFinal: Un booleano que indica si el estado es final.
  *  - stateSet: Un mapa que representa el conjunto de estados del NFA que conforman este estado en el DFA.
+ *  - isBuildingDFA: Un booleano que indica si estamos en la fase de construcción del DFA (true) o minimización (false).
  *
  * Retorno:
  *  - Un puntero al nuevo estado del DFA creado.
  */
-func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool) *DFAState {
+func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool, isBuildingDFA bool) *DFAState {
 	newState := &DFAState{
-		Name:     getStateName(),
+		Name:     getStateName(isBuildingDFA, stateSet),
 		IsFinal:  isFinal,
 		StateSet: stateSet,
 	}

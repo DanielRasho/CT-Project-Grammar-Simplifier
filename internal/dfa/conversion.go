@@ -7,39 +7,9 @@ El método de subconjuntos consiste en agrupar los estados del NFA en un conjunt
 package dfa
 
 import (
-	"strings"
-
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
 	runner "github.com/DanielRasho/TC-1-ShuntingYard/internal/runner_simulation"
 )
-
-var stateNameCounter = 0
-
-/**
- * getStateName genera nombres de estados secuenciales como A, B, C, ..., Z, AA, AB, etc.
- *
- * Retorno:
- *  - Un string que representa el nombre del nuevo estado.
- */
-func getStateName() string {
-	counter := stateNameCounter
-	stateNameCounter++
-
-	var name strings.Builder
-
-	for counter >= 0 {
-		name.WriteByte(byte('A' + counter%26))
-		counter = counter/26 - 1
-	}
-
-	// El nombre se construye en orden inverso, así que lo invertimos
-	runes := []rune(name.String())
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-
-	return string(runes)
-}
 
 /**
  * BuildDFA realiza la conversión de un NFA a un DFA utilizando el método de subconjuntos.
@@ -69,7 +39,7 @@ func BuildDFA(nfa *nfaAutomata.NFA) *DFA {
 	}
 
 	// Crear el estado inicial del DFA.
-	initialState := dfa.addState(isFinal, initialSet)
+	initialState := dfa.addState(isFinal, initialSet, true)
 	dfa.StartState = initialState
 
 	// Lista de nuevos estados a procesar.
@@ -101,7 +71,7 @@ func BuildDFA(nfa *nfaAutomata.NFA) *DFA {
 						break
 					}
 				}
-				nextDFAState = dfa.addState(isNextFinal, nextSet)
+				nextDFAState = dfa.addState(isNextFinal, nextSet, true)
 				unmarkedStates = append(unmarkedStates, nextDFAState)
 			}
 

@@ -56,6 +56,10 @@ func PrintAllResults(index int, results []RegexResult) {
 	// Imprime el DFA
 	fmt.Println("\nEl DFA resultante es:")
 	PrintDFA(result.DFA)
+
+	// Imprime el DFA minimizado
+	fmt.Println("\nEl DFA minimizado resultante es:")
+	PrintDFA(result.DFA_M)
 }
 
 /*
@@ -180,7 +184,9 @@ func MyRegex() {
 		// Construye el AFN a partir del AST
 		nfa := nfaAutomata.BuildNFA(root)
 		// Construye el AFD
-		// dfa := dfaAutomata.ConvertNFAtoAFD(nfa)
+		// dfa := dfaAutomata.BuildDFA(nfa)
+		//	 Minimizar el AFD
+		// dfaM := dfaAutomata.MinimizeDFA(dfa)
 
 		// Renderiza el NFA
 		nfaFilename := fmt.Sprintf("./graphs/NFA/nfa_%s.png", newRegex)
@@ -193,7 +199,7 @@ func MyRegex() {
 
 		// Renderiza el DFA
 		// dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
-		// err = dfaAutomata.RenderDFA(dfa, dfaFilename)
+		// err = dfaAutomata.RenderDFA(dfaM, dfaFilename)
 		// if err != nil {
 		// 	fmt.Println("Error rendering DFA:", err)
 		// } else {
@@ -282,6 +288,9 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 		// Convertir a DFA
 		dfa := dfaAutomata.BuildDFA(nfa)
 
+		// Minimizar DFA
+		dfaM := dfaAutomata.MinimizeDFA(dfa)
+
 		// Renderizar el NFA
 		err := nfaAutomata.RenderAFN(nfa, fmt.Sprintf("./graphs/NFA/nfa_%d_%s.png", index, line))
 		if err != nil {
@@ -289,7 +298,7 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 		}
 
 		// Renderizar el DFA
-		// err = dfaAutomata.RenderDFA(dfa, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
+		// err = dfaAutomata.RenderDFA(dfaM, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
 		// if err != nil {
 		// 	fmt.Println("Error rendereizado de DFA:", err)
 		// }
@@ -301,6 +310,7 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 			AST:           root,
 			NFA:           nfa,
 			DFA:           dfa,
+			DFA_M:         dfaM,
 		})
 	}
 
@@ -326,6 +336,7 @@ type RegexResult struct {
 	AST           ast.Node
 	NFA           *nfaAutomata.NFA
 	DFA           *dfaAutomata.DFA
+	DFA_M         *dfaAutomata.DFA
 }
 
 /*
