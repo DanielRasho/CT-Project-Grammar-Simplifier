@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/IO"
+	io "github.com/DanielRasho/TC-1-ShuntingYard/internal/io"
 	shuttingyard "github.com/DanielRasho/TC-1-ShuntingYard/internal/shuntingyard"
 )
 
