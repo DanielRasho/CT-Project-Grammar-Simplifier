@@ -101,7 +101,7 @@ func NewDFA() *DFA {
  * Retorno:
  *  - string: Un string que representa el nombre del nuevo estado.
  */
-/*
+
 func getStateName(isBuildingDFA bool,
 	// stateSet map[*nfaAutomata.State]bool,
 	existingNames []string) string {
@@ -111,7 +111,7 @@ func getStateName(isBuildingDFA bool,
 		//for state := range stateSet {
 		//	names = append(names, state.Name)
 		// }
-		return "{" + strings.Join(existingNames, ",") + "}"
+		return strings.Join(existingNames, ",")
 	}
 
 	// Generar un nombre secuencial para la construcción del DFA
@@ -133,7 +133,6 @@ func getStateName(isBuildingDFA bool,
 
 	return name.String()
 }
-*/
 
 /**
  * addState agrega un nuevo estado al DFA.
@@ -150,7 +149,7 @@ func getStateName(isBuildingDFA bool,
 func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool, isBuildingDFA bool, existingNames []string) *DFAState {
 	newState := &DFAState{
 		Name: getStateName(isBuildingDFA,
-			stateSet,
+			//stateSet,
 			existingNames),
 		IsFinal:  isFinal,
 		StateSet: stateSet,
