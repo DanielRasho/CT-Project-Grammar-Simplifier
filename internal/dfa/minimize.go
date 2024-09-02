@@ -2,7 +2,6 @@ package dfa
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
@@ -18,197 +17,143 @@ import (
  *  - *DFA: Un puntero al DFA minimizado.
  */
 func MinimizeDFA(dfa *DFA) *DFA {
-	// Categorías para almacenar los estados
-	var acceptedStates []*DFAState
-	var nonAcceptedStates []*DFAState
+	if len(dfa.States) == 0 {
+		return dfa // Empty DFA, return as is
+	}
 
-	// Recorre todos los estados del DFA
+	// Step 1: Partition states into final and non-final
+	finalStates := make([]*DFAState, 0)
+	nonFinalStates := make([]*DFAState, 0)
 	for _, state := range dfa.States {
 		if state.IsFinal {
-			// Si el estado es de aceptación, añadir a la lista de aceptados
-			acceptedStates = append(acceptedStates, state)
+			finalStates = append(finalStates, state)
 		} else {
-			// Si el estado no es de aceptación, añadir a la lista de no aceptados
-			nonAcceptedStates = append(nonAcceptedStates, state)
+			nonFinalStates = append(nonFinalStates, state)
 		}
 	}
 
-	// Crear punteros para los subsets
-	subset1 := &subset{States: acceptedStates, ID: 1}
-	subset2 := &subset{States: nonAcceptedStates, ID: 2}
-
-	// Crear partición inicial con punteros a los subsets
-	initialPartition := partition{Subsets: []*subset{subset1, subset2}, ID: 0}
-	finalPartitions := doPartition(initialPartition, dfa.Transitions)
-
-	// Crear el nuevo DFA
-	newDFA := NewDFA()
-	stateMap := make(map[string]*DFAState)
-
-	// Recopilar nombres de estados existentes
-	var existingNames []string
-	for _, state := range dfa.States {
-		existingNames = append(existingNames, state.Name)
+	// Step 2: Initialize partitions
+	partitions := []*subset{
+		{States: finalStates, ID: 1},
+		{States: nonFinalStates, ID: 2},
 	}
 
-	// Crear nuevos estados en el DFA basado en las particiones
-	for _, p := range finalPartitions {
-		stateSet := make(map[*nfaAutomata.State]bool)
-		for _, subset := range p.Subsets {
-			for _, state := range subset.States {
-				for nfaState := range state.StateSet {
-					stateSet[nfaState] = true
+	// Step 3: Refine partitions until no further changes
+	changed := true
+	for changed {
+		changed = false
+		newPartitions := []*subset{}
+
+		for _, partition := range partitions {
+			partitionMap := make(map[string]*subset)
+			for _, state := range partition.States {
+				key := ""
+				for symbol, targetState := range dfa.Transitions[state] {
+					targetPartition := findPartitionForState(targetState, partitions)
+					key += symbol + fmt.Sprintf("%d", targetPartition.ID)
 				}
+
+				if partitionMap[key] == nil {
+					newSubset := &subset{ID: len(newPartitions) + 1}
+					partitionMap[key] = newSubset
+					newPartitions = append(newPartitions, newSubset)
+				}
+				partitionMap[key].States = append(partitionMap[key].States, state)
 			}
 		}
 
-		// Determinar si el nuevo estado es final
+		if len(newPartitions) != len(partitions) {
+			changed = true
+			partitions = newPartitions
+		}
+	}
+
+	// Step 4: Create a new DFA based on the refined partitions
+	minimizedDFA := NewDFA()
+	stateMap := make(map[*subset]*DFAState)
+	for _, partition := range partitions {
 		isFinal := false
-		for _, subset := range p.Subsets {
-			for _, state := range subset.States {
-				if state.IsFinal {
-					isFinal = true
-					break
-				}
+		stateSet := make(map[*nfaAutomata.State]bool)
+		var subsetNames []string
+
+		for _, state := range partition.States {
+			if state.IsFinal {
+				isFinal = true
+			}
+			for nfaState := range state.StateSet {
+				stateSet[nfaState] = true
+				subsetNames = append(subsetNames, nfaState.Name)
 			}
 		}
 
-		// Crear un nuevo estado y agregarlo al nuevo DFA
-		stateName := generateStateName(p.Subsets) // Esto ahora usará los nombres del DFA original
-		newState := newDFA.addState(isFinal, stateSet, false, existingNames)
-		stateMap[stateName] = newState
+		newStateName := "{" + strings.Join(subsetNames, ",") + "}"
+		newState := &DFAState{
+			Name:     newStateName,
+			IsFinal:  isFinal,
+			StateSet: stateSet,
+		}
+
+		minimizedDFA.States = append(minimizedDFA.States, newState)
+		stateMap[partition] = newState
 	}
 
-	// Definir las transiciones para el nuevo DFA
-	for _, p := range finalPartitions {
-		for _, mysubset := range p.Subsets {
-			for _, state := range mysubset.States {
-				for symbol, nextState := range dfa.Transitions[state] {
-					// Encuentra el estado de la partición correspondiente
-					nextPartition := findPartition(nextState, finalPartitions)
-					nextStateName := generateStateName([]*subset{nextPartition})
-					fromStateName := generateStateName([]*subset{mysubset})
-
-					// Agregar la transición al nuevo DFA
-					newDFA.addTransition(stateMap[fromStateName], symbol, stateMap[nextStateName])
-				}
+	// Step 5: Add transitions to the new DFA
+	for _, partition := range partitions {
+		for _, state := range partition.States {
+			for symbol, targetState := range dfa.Transitions[state] {
+				fromState := stateMap[partition]
+				toPartition := findPartitionForState(targetState, partitions)
+				toState := stateMap[toPartition]
+				minimizedDFA.addTransition(fromState, symbol, toState)
 			}
 		}
 	}
 
-	// Definir el estado inicial del nuevo DFA
-	initialSubset := findPartition(dfa.States[0], finalPartitions)
-	newDFA.StartState = stateMap[generateStateName([]*subset{initialSubset})]
+	// Set the start state for the minimized DFA
+	initialPartition := findPartitionForState(dfa.StartState, partitions)
+	minimizedDFA.StartState = stateMap[initialPartition]
 
-	return newDFA
+	return minimizedDFA
 }
 
-/**
- * generateStateName genera un nombre único para un estado basado en los nombres de los estados del DFA original.
- *
- * Parámetros:
- *  - subsets: Un slice de punteros a estructuras subset que representan los estados en una partición.
- *
- * Retorno:
- *  - string: Un nombre único generado para el nuevo estado del DFA.
- */
-func generateStateName(subsets []*subset) string {
-	var stateNames []string
-	for _, s := range subsets {
-		for _, state := range s.States {
-			stateNames = append(stateNames, state.Name) // Utiliza el nombre del DFA, no los nombres de los estados del NFA
-		}
-	}
-	sort.Strings(stateNames) // Asegúrate de que los nombres estén ordenados para evitar inconsistencias
-	return "{" + strings.Join(stateNames, ",") + "}"
-}
-
-/**
- * findPartition encuentra la partición a la que pertenece un estado.
- *
- * Parámetros:
- *  - state: Un puntero al estado del DFA que se busca.
- *  - partitions: Un slice de estructuras partition que representan las particiones actuales del DFA.
- *
- * Retorno:
- *  - *subset: Un puntero al subset que contiene el estado dado.
- */
-func findPartition(state *DFAState, partitions []partition) *subset {
-	for _, p := range partitions {
-		for _, s := range p.Subsets {
-			for _, st := range s.States {
-				if st == state {
-					return s
-				}
+// Helper function to find the partition for a given state
+func findPartitionForState(state *DFAState, partitions []*subset) *subset {
+	for _, partition := range partitions {
+		for _, s := range partition.States {
+			if s == state {
+				return partition
 			}
 		}
 	}
 	return nil
 }
 
-/**
- * generateKey genera una clave única para un estado basado en sus transiciones.
- *
- * Parámetros:
- *  - state: Un puntero al estado del DFA para el cual se genera la clave.
- *  - transitions: Un mapa de transiciones del DFA que asocia estados con símbolos de entrada.
- *
- * Retorno:
- *  - string: Una clave única generada para el estado basado en sus transiciones.
- */
-func generateKey(state *DFAState, transitions map[*DFAState]map[string]*DFAState) string {
-	transitionsMap := transitions[state]
-	var keyParts []string
-	for symbol, nextState := range transitionsMap {
-		keyParts = append(keyParts, fmt.Sprintf("%s:%s", symbol, nextState.Name))
-	}
-	return strings.Join(keyParts, ",")
-}
-
-/**
- * doPartition divide los estados en particiones más pequeñas basadas en las transiciones.
- *
- * Parámetros:
- *  - initialPartition: La partición inicial que contiene los estados separados en aceptados y no aceptados.
- *  - transitions: Un mapa de transiciones del DFA que asocia estados con símbolos de entrada.
- *
- * Retorno:
- *  - []partition: Un slice de particiones resultantes después de aplicar la minimización.
- */
-func doPartition(initialPartition partition, transitions map[*DFAState]map[string]*DFAState) []partition {
-	var partitions []partition
-	partitions = append(partitions, initialPartition)
-
-	for {
-		var newPartitions []*subset
-		partChanged := false
-
-		// Recorre cada partición
-		for _, s := range partitions[0].Subsets {
-			subsetMap := make(map[string][]*DFAState)
-
-			// Recorre cada estado en el subset
-			for _, state := range s.States {
-				key := generateKey(state, transitions)
-				subsetMap[key] = append(subsetMap[key], state)
-			}
-
-			// Crea nuevos subsets a partir de los grupos
-			for _, states := range subsetMap {
-				newPartitions = append(newPartitions, &subset{States: states, ID: len(newPartitions) + 1})
-			}
-
-			if len(newPartitions) > len(partitions[0].Subsets) {
-				partChanged = true
-			}
+func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool, existingNames []string) string {
+	if !isBuildingDFA {
+		// If we're minimizing, generate a name based on the state set
+		var names []string
+		for state := range stateSet {
+			names = append(names, state.Name)
 		}
-
-		if !partChanged {
-			break
-		}
-
-		partitions = []partition{{Subsets: newPartitions, ID: len(partitions) + 1}}
+		return "{" + strings.Join(names, ",") + "}"
 	}
 
-	return partitions
+	// Generate a sequential state name during DFA construction
+	counter := stateNameCounter
+	stateNameCounter++
+
+	var name strings.Builder
+	repeat := counter / 26 // Calculate how many full alphabet cycles we've completed
+
+	if repeat == 0 {
+		return string(rune('A' + counter%26)) // Simple case for the first 26 states
+	}
+
+	// For states beyond 'Z', we add 'A' repeated and then the next character
+	for i := 0; i < repeat; i++ {
+		name.WriteByte('A')
+	}
+	name.WriteByte(byte('A' + counter%26))
+
+	return name.String()
 }

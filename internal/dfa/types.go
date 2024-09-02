@@ -8,6 +8,7 @@ Un DFA garantiza que para cada estado y símbolo del alfabeto, exista a lo sumo 
 package dfa
 
 import (
+	"fmt"
 	"strings"
 
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
@@ -55,6 +56,28 @@ type partition struct {
 	ID      int
 }
 
+// String method for DFAState to return a string representation of the DFAState
+func (state *DFAState) String() string {
+	stateNames := []string{}
+	for nfaState := range state.StateSet {
+		stateNames = append(stateNames, nfaState.Name)
+	}
+
+	// Join the state names and return a formatted string
+	return fmt.Sprintf("State: %s, IsFinal: %t, StateSet: {%s}", state.Name, state.IsFinal, strings.Join(stateNames, ", "))
+}
+
+// String method for subset to return a string representation of the subset
+func (s *subset) String() string {
+	stateStrings := []string{}
+	for _, state := range s.States {
+		stateStrings = append(stateStrings, state.String())
+	}
+
+	// Join all the DFAState strings and return a formatted string
+	return fmt.Sprintf("Subset ID: %d, States: [%s]", s.ID, strings.Join(stateStrings, "; "))
+}
+
 /**
  * NewDFA crea y retorna un nuevo DFA vacío.
  *
@@ -78,6 +101,7 @@ func NewDFA() *DFA {
  * Retorno:
  *  - string: Un string que representa el nombre del nuevo estado.
  */
+/*
 func getStateName(isBuildingDFA bool,
 	// stateSet map[*nfaAutomata.State]bool,
 	existingNames []string) string {
@@ -109,6 +133,7 @@ func getStateName(isBuildingDFA bool,
 
 	return name.String()
 }
+*/
 
 /**
  * addState agrega un nuevo estado al DFA.
@@ -125,7 +150,7 @@ func getStateName(isBuildingDFA bool,
 func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool, isBuildingDFA bool, existingNames []string) *DFAState {
 	newState := &DFAState{
 		Name: getStateName(isBuildingDFA,
-			// stateSet,
+			stateSet,
 			existingNames),
 		IsFinal:  isFinal,
 		StateSet: stateSet,
