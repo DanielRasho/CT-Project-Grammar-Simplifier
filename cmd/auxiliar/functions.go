@@ -333,7 +333,7 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 	}
 
 	// Imprimir resultados para la primera expresión regular
-	PrintAllResults(0, results)
+	// PrintAllResults(0, results)
 
 	return results, nil
 }

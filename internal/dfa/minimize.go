@@ -18,7 +18,7 @@ import (
  *  - *DFA: Un puntero al DFA minimizado.
  */
 func MinimizeDFA(dfa *DFA) *DFA {
-	fmt.Println("Iniciando la minimización del DFA...")
+	// fmt.Println("Iniciando la minimización del DFA...")
 
 	// Categorías para almacenar los estados
 	var acceptedStates []*DFAState
@@ -33,8 +33,8 @@ func MinimizeDFA(dfa *DFA) *DFA {
 		}
 	}
 
-	fmt.Println("Estados de aceptación:", len(acceptedStates))
-	fmt.Println("Estados no aceptados:", len(nonAcceptedStates))
+	// fmt.Println("Estados de aceptación:", len(acceptedStates))
+	// fmt.Println("Estados no aceptados:", len(nonAcceptedStates))
 
 	// Crear punteros para los subsets
 	subset1 := &subset{States: acceptedStates, ID: 1}
@@ -42,10 +42,10 @@ func MinimizeDFA(dfa *DFA) *DFA {
 
 	// Crear partición inicial con punteros a los subsets
 	initialPartition := partition{Subsets: []*subset{subset1, subset2}, ID: 0}
-	fmt.Println("Partición inicial creada con 2 subconjuntos.")
+	// fmt.Println("Partición inicial creada con 2 subconjuntos.")
 
 	finalPartitions := doPartition(initialPartition, dfa.Transitions)
-	fmt.Println("Particiones finales obtenidas:", len(finalPartitions))
+	// fmt.Println("Particiones finales obtenidas:", len(finalPartitions))
 
 	// Crear el nuevo DFA
 	newDFA := NewDFA()
@@ -73,7 +73,7 @@ func MinimizeDFA(dfa *DFA) *DFA {
 				continue
 			}
 			stateMap[stateName] = newState
-			fmt.Printf("Nuevo estado creado: %s, es final: %v\n", stateName, isFinal)
+			// fmt.Printf("Nuevo estado creado: %s, es final: %v\n", stateName, isFinal)
 		}
 	}
 
@@ -101,7 +101,7 @@ func MinimizeDFA(dfa *DFA) *DFA {
 
 					// Agregar la transición al nuevo DFA
 					newDFA.addTransition(fromState, symbol, toState)
-					fmt.Printf("Transición añadida: %s --%s--> %s\n", fromStateName, symbol, nextStateName)
+					// fmt.Printf("Transición añadida: %s --%s--> %s\n", fromStateName, symbol, nextStateName)
 				}
 			}
 		}
@@ -120,7 +120,7 @@ func MinimizeDFA(dfa *DFA) *DFA {
 	}
 	fmt.Printf("Estado inicial del nuevo DFA: %s\n", newDFA.StartState.Name)
 
-	fmt.Println("Minimización completada.")
+	// fmt.Println("Minimización completada.")
 	return newDFA
 }
 
