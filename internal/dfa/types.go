@@ -78,13 +78,15 @@ func NewDFA() *DFA {
  * Retorno:
  *  - string: Un string que representa el nombre del nuevo estado.
  */
-func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool, existingNames []string) string {
+func getStateName(isBuildingDFA bool,
+	// stateSet map[*nfaAutomata.State]bool,
+	existingNames []string) string {
 	if !isBuildingDFA {
 		// Si no estamos construyendo el DFA, generar el nombre basado en el conjunto de estados
-		var names []string
-		for state := range stateSet {
-			names = append(names, state.Name)
-		}
+		// var names []string
+		//for state := range stateSet {
+		//	names = append(names, state.Name)
+		// }
 		return "{" + strings.Join(existingNames, ",") + "}"
 	}
 
@@ -96,7 +98,7 @@ func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool, exis
 	repeat := counter / 26 // Calcula cuántas veces se ha completado un ciclo completo a través del alfabeto
 
 	if repeat == 0 {
-		return string('A' + counter%26) // Caso simple para los primeros 26 estados
+		return string(rune('A' + counter%26)) // Caso simple para los primeros 26 estados
 	}
 
 	// Para estados después de 'Z', agregamos 'A' repetido y luego el siguiente carácter
@@ -122,7 +124,9 @@ func getStateName(isBuildingDFA bool, stateSet map[*nfaAutomata.State]bool, exis
  */
 func (dfa *DFA) addState(isFinal bool, stateSet map[*nfaAutomata.State]bool, isBuildingDFA bool, existingNames []string) *DFAState {
 	newState := &DFAState{
-		Name:     getStateName(isBuildingDFA, stateSet, existingNames),
+		Name: getStateName(isBuildingDFA,
+			// stateSet,
+			existingNames),
 		IsFinal:  isFinal,
 		StateSet: stateSet,
 	}

@@ -198,13 +198,15 @@ func MyRegex() {
 		}
 
 		// Renderiza el DFA
-		// dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
-		// err = dfaAutomata.RenderDFA(dfaM, dfaFilename)
-		// if err != nil {
-		// 	fmt.Println("Error rendering DFA:", err)
-		// } else {
-		// 	fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
-		// }
+		/*
+			dfaFilename := fmt.Sprintf("./graphs/DFA/dfa_%s.png", newRegex)
+			err = dfaAutomata.RenderDFA(dfaM, dfaFilename)
+			if err != nil {
+				fmt.Println("Error rendering DFA:", err)
+			} else {
+				fmt.Printf("\t🌄 Grafo DFA generado exitosamente como '%s'!\n", dfaFilename)
+			}
+		*/
 
 		// Simular el AFN con una cadena dada por el usuario
 		fmt.Print("➡️  Ingresa la cadena a evaluar: ")
@@ -298,10 +300,12 @@ func RegexFile(filePath string) ([]RegexResult, error) {
 		}
 
 		// Renderizar el DFA
-		// err = dfaAutomata.RenderDFA(dfaM, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
-		// if err != nil {
-		// 	fmt.Println("Error rendereizado de DFA:", err)
-		// }
+		/*
+			err = dfaAutomata.RenderDFA(dfaM, fmt.Sprintf("./graphs/DFA/dfa_%d_%s.png", index, line))
+			if err != nil {
+				fmt.Println("Error rendereizado de DFA:", err)
+			}
+		*/
 
 		// Agregar el resultado al listado
 		results = append(results, RegexResult{
