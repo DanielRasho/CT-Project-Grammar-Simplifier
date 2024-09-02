@@ -184,9 +184,9 @@ func MyRegex() {
 		// Construye el AFN a partir del AST
 		nfa := nfaAutomata.BuildNFA(root)
 		// Construye el AFD
-		// dfa := dfaAutomata.BuildDFA(nfa)
+		dfa := dfaAutomata.BuildDFA(nfa)
 		//	 Minimizar el AFD
-		// dfaM := dfaAutomata.MinimizeDFA(dfa)
+		dfaM := dfaAutomata.MinimizeDFA(dfa)
 
 		// Renderiza el NFA
 		nfaFilename := fmt.Sprintf("./graphs/NFA/nfa_%s.png", newRegex)
@@ -215,10 +215,10 @@ func MyRegex() {
 
 		// Ejecutar la simulación del AFN y AFD con la cadena
 		resultado_nfa := runner.RunnerNFA(nfa, cadena)
-		// resultado_dfa := runner.RunnerDFA(dfa, cadena)
+		resultado_dfa := runner.RunnerDFA(dfaM, cadena)
 
 		// Mostrar el resultado de la simulación usando la nueva función
-		RunnerSimulation(resultado_nfa, true, cadena, newRegex)
+		RunnerSimulation(resultado_nfa, resultado_dfa, cadena, newRegex)
 	}
 }
 
@@ -385,8 +385,8 @@ func MenuRegexFile(results []RegexResult) {
 
 	// Ejecutar la simulación del NFA y DFA con la cadena
 	resultado_nfa := runner.RunnerNFA(selectedResult.NFA, cadena)
-	//resultado_dfa := runner.RunnerDFA(selectedResult.DFA, cadena)
+	resultado_dfa := runner.RunnerDFA(selectedResult.DFA_M, cadena)
 
 	// Mostrar el resultado de la simulación usando la función RunnerSimulation
-	RunnerSimulation(true, resultado_nfa, cadena, selectedResult.OriginalRegex)
+	RunnerSimulation(resultado_dfa, resultado_nfa, cadena, selectedResult.OriginalRegex)
 }

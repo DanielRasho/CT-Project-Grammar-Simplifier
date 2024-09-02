@@ -253,3 +253,86 @@ func nfaKleene(operands []ast.Node) *NFA {
 		Transitions: allTransitions,
 	}
 }
+
+/**
+ * epsilonClosure calcula la ε-cerradura para un único estado en un AFN.
+ * La ε-cerradura de un estado es el conjunto de todos los estados que
+ * pueden alcanzarse desde el estado dado utilizando transiciones epsilon (ε).
+ *
+ * Parámetros:
+ *  - state: Un puntero a la estructura State que representa el estado inicial para calcular la ε-cerradura.
+ *  - transitions: Un slice de Transition que representa todas las transiciones del AFN.
+ *
+ * Retorno:
+ *  - Un slice de punteros a State que contiene todos los estados alcanzables desde el estado inicial utilizando transiciones ε.
+ */
+func EpsilonClosure(state *State, transitions []Transition) []*State {
+	closure := map[*State]bool{state: true}
+	stack := []*State{state}
+
+	for len(stack) > 0 {
+		current := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		for _, t := range transitions {
+			if t.From == current && t.Symbol == "ε" {
+				for _, target := range t.To {
+					if !closure[target] {
+						closure[target] = true
+						stack = append(stack, target)
+					}
+				}
+			}
+		}
+	}
+
+	var closureStates []*State
+	for state := range closure {
+		closureStates = append(closureStates, state)
+	}
+
+	return closureStates
+}
+
+/**
+ * EpsilonClosureOfSet calcula la ε-cerradura para un conjunto de estados en un AFN.
+ * Esencialmente, extiende la operación de ε-cerradura para un solo estado a un conjunto de estados.
+ *
+ * Parámetros:
+ *  - states: Un slice de punteros a State que representa los estados iniciales para calcular la ε-cerradura.
+ *  - transitions: Un slice de Transition que representa todas las transiciones del AFN.
+ *
+ * Retorno:
+ *  - Un slice de punteros a State que contiene todos los estados alcanzables desde los estados iniciales utilizando transiciones ε.
+ */
+func EpsilonClosureOfSet(states []*State, transitions []Transition) []*State {
+	closure := []*State{}
+	for _, state := range states {
+		closure = append(closure, EpsilonClosure(state, transitions)...)
+	}
+	return closure
+}
+
+/**
+ * Mover realiza la operación de Mover(T, a), que calcula el conjunto de estados alcanzables
+ * desde un conjunto de estados dado utilizando un símbolo específico.
+ *
+ * Parámetros:
+ *  - states: Un slice de punteros a State que representa los estados actuales desde los que se quiere Mover.
+ *  - symbol: Un string que representa el símbolo con el cual se realiza la transición.
+ *  - transitions: Un slice de Transition que representa todas las transiciones del AFN.
+ *
+ * Retorno:
+ *  - Un slice de punteros a State que contiene todos los estados alcanzables desde los estados iniciales utilizando el símbolo dado.
+ */
+func Mover(states []*State, symbol string, transitions []Transition) []*State {
+	var result []*State
+	for _, state := range states {
+		for _, t := range transitions {
+			if t.From == state && t.Symbol == symbol {
+				result = append(result, t.To...)
+			}
+		}
+	}
+	return result
+}

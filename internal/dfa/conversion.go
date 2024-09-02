@@ -8,7 +8,6 @@ package dfa
 
 import (
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
-	runner "github.com/DanielRasho/TC-1-ShuntingYard/internal/runner_simulation"
 )
 
 /**
@@ -22,7 +21,7 @@ import (
  */
 func BuildDFA(nfa *nfaAutomata.NFA) *DFA {
 	dfa := NewDFA()
-	initialClosure := runner.EpsilonClosureOfSet([]*nfaAutomata.State{nfa.StartState}, nfa.Transitions)
+	initialClosure := nfaAutomata.EpsilonClosureOfSet([]*nfaAutomata.State{nfa.StartState}, nfa.Transitions)
 
 	initialSet := make(map[*nfaAutomata.State]bool)
 	for _, state := range initialClosure {
@@ -53,8 +52,8 @@ func BuildDFA(nfa *nfaAutomata.NFA) *DFA {
 		// Procesar cada símbolo del alfabeto del NFA.
 		symbols := nfaAutomata.ExtractSymbols(nfa)
 		for _, symbol := range symbols {
-			nextStates := runner.Mover(stateSetToList(currentDFAState.StateSet), symbol, nfa.Transitions)
-			closure := runner.EpsilonClosureOfSet(nextStates, nfa.Transitions)
+			nextStates := nfaAutomata.Mover(stateSetToList(currentDFAState.StateSet), symbol, nfa.Transitions)
+			closure := nfaAutomata.EpsilonClosureOfSet(nextStates, nfa.Transitions)
 			nextSet := make(map[*nfaAutomata.State]bool)
 			for _, s := range closure {
 				nextSet[s] = true
@@ -139,4 +138,24 @@ func equalStateSets(set1, set2 map[*nfaAutomata.State]bool) bool {
 		}
 	}
 	return true
+}
+
+/**
+ * Mover realiza la operación de transición en un DFA. Dado un estado y un símbolo,
+ * retorna el estado alcanzable con ese símbolo.
+ *
+ * Parámetros:
+ *  - state: Un puntero a la estructura DFAState que representa el estado actual.
+ *  - symbol: Un string que representa el símbolo con el cual se realiza la transición.
+ *
+ * Retorno:
+ *  - Un puntero a DFAState que contiene el estado alcanzable con el símbolo dado, o nil si no existe transición.
+ */
+func (dfa *DFA) Mover(state *DFAState, symbol string) *DFAState {
+	if transitions, exists := dfa.Transitions[state]; exists {
+		if nextState, exists := transitions[symbol]; exists {
+			return nextState
+		}
+	}
+	return nil
 }
