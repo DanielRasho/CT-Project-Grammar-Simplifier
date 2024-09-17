@@ -1,2 +1,1 @@
-abb
-abb(a|b)?
+[acd]

@@ -3,7 +3,6 @@ package runnersimulation
 import (
 	"strings"
 
-	dfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/dfa"
 	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
 )
 
@@ -38,35 +37,4 @@ func RunnerNFA(nfa *nfaAutomata.NFA, cadena string) bool {
 	}
 
 	return false
-}
-
-/**
- * RunnerDFA simula el recorrido de un DFA (Autómata Finito Determinista) con una cadena de entrada.
- * La función utiliza la operación de Mover para determinar si la cadena es aceptada por el DFA.
- *
- * Parámetros:
- *  - dfa: Un puntero a la estructura DFA que representa el autómata finito determinista.
- *  - cadena: Un string que representa la cadena de entrada que se quiere evaluar.
- *
- * Retorno:
- *  - Un booleano que indica si la cadena es aceptada (true) o no (false) por el DFA.
- */
-func RunnerDFA(dfa *dfaAutomata.DFA, cadena string) bool {
-	// Convertir la cadena a un slice de caracteres
-	simbolos := strings.Split(cadena, "")
-
-	// Inicializar el estado actual como el estado inicial del DFA
-	currentState := dfa.StartState
-
-	// Procesar cada símbolo en la cadena
-	for _, simbolo := range simbolos {
-		currentState = dfa.Mover(currentState, simbolo)
-		if currentState == nil {
-			// Si no hay transición definida para el símbolo, la cadena no es aceptada
-			return false
-		}
-	}
-
-	// Verificar si el estado final alcanzado es un estado aceptado
-	return currentState.IsFinal
 }
