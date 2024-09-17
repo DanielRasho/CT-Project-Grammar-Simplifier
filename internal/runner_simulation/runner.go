@@ -3,7 +3,7 @@ package runnersimulation
 import (
 	"strings"
 
-	nfaAutomata "github.com/DanielRasho/TC-1-ShuntingYard/internal/nfa"
+	nfaAutomata "github.com/DanielRasho/Computation-Theory/internal/nfa"
 )
 
 /**

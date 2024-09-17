@@ -7,7 +7,7 @@ package nfa
 import (
 	"fmt"
 
-	ast "github.com/DanielRasho/TC-1-ShuntingYard/internal/abstract_syntax_tree"
+	ast "github.com/DanielRasho/Computation-Theory/internal/abstract_syntax_tree"
 )
 
 /*

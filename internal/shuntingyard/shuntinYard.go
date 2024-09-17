@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/DanielRasho/TC-1-ShuntingYard/internal/balancer"
+	"github.com/DanielRasho/Computation-Theory/internal/balancer"
 	"github.com/golang-collections/collections/stack"
 )
 
@@ -150,8 +150,8 @@ func interchangeOperators(tokens *[]Symbol) []Symbol {
 			} else if s1IsOperator && (s1).GetValue() == "]" {
 				start, end := getSubExpresionIndex(tokens, i, "[", "]")
 
-				fmt.Println(start)
-				fmt.Println(end)
+				// fmt.Println(start)
+				// fmt.Println(end)
 
 				if end-start > 3 {
 					subExpresion := (*tokens)[start+1 : end-1]
