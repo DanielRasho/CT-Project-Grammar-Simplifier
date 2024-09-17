@@ -114,3 +114,56 @@ func TestShuntinYard(t *testing.T) {
 
 	areSlicesEqual(t, response, expect)
 }
+
+func TestEscapedCharacters(t *testing.T) {
+	symbols, _ := convertToSymbols("a\\|b")
+	expect := []Symbol{
+		&Character{value: "a", precedence: 60},
+		&Character{value: "|", precedence: 60},
+		&Character{value: "b", precedence: 60},
+	}
+
+	if expect[1].GetValue() != symbols[1].GetValue() {
+		t.Fatalf("Not escaped character. Expected %s, Given %s", expect[1].GetValue(), symbols[1].GetValue())
+	}
+	if val, ok := symbols[1].(*Character); !ok {
+		t.Fatalf("| did not remain as character Given %v", val)
+	}
+}
+
+func TestInterchangeEscapedOperators(t *testing.T) {
+	symbols, _ := convertToSymbols("a\\|b")
+	v1 := interchangeOperators(&symbols)
+	expect := []Symbol{
+		&Character{value: "a", precedence: 60},
+		&Character{value: "|", precedence: 60},
+		&Character{value: "b", precedence: 60},
+	}
+
+	if expect[1].GetValue() != v1[1].GetValue() {
+		t.Fatalf("Not escaped character. Expected %s, Given %s", expect[1].GetValue(), v1[1].GetValue())
+	}
+	if val, ok := v1[1].(*Character); !ok {
+		t.Fatalf("| dit not remain as character. Given %v", val)
+	}
+}
+
+func TestInterchangeOperatorsCharacters(t *testing.T) {
+	symbols, _ := convertToSymbols("a\\|b")
+	v1 := interchangeOperators(&symbols)
+	v2, _ := addConcatenationSymbol(&v1)
+	expect := []Symbol{
+		&Character{value: "a", precedence: 60},
+		&Operator{value: "·", precedence: 30, operands: 2},
+		&Character{value: "|", precedence: 60},
+		&Operator{value: "·", precedence: 30, operands: 2},
+		&Character{value: "b", precedence: 60},
+	}
+
+	if expect[2].GetValue() != v2[2].GetValue() {
+		t.Fatalf("Not escaped character. Expected %s, Given %s", expect[2].GetValue(), v2[2].GetValue())
+	}
+	if val, ok := v2[2].(*Character); !ok {
+		t.Fatalf("| dit not remain as character. Given %v", val)
+	}
+}
