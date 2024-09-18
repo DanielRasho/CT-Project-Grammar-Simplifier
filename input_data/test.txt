@@ -1,1 +1,6 @@
-A -> acd
+A -> ε
+D -> C
+C -> B
+B -> A
+J -> d
+J -> da

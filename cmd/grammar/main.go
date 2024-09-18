@@ -5,6 +5,7 @@ import (
 
 	io "github.com/DanielRasho/Computation-Theory/internal/IO"
 	ast "github.com/DanielRasho/Computation-Theory/internal/abstract_syntax_tree"
+	grammar "github.com/DanielRasho/Computation-Theory/internal/grammar"
 	nfaAutomata "github.com/DanielRasho/Computation-Theory/internal/nfa"
 	runner "github.com/DanielRasho/Computation-Theory/internal/runner_simulation"
 	shuttingyard "github.com/DanielRasho/Computation-Theory/internal/shuntingyard"
@@ -16,7 +17,7 @@ const CAPITAL_LETTERS string = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
 const DIGITS string = "[0123456789]"
 
 // A -> ab|ε
-var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|ε)+\\#)*(%s|%s|%s|ε)+",
+var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|ε)+#)*(%s|%s|%s|ε)+",
 	CAPITAL_LETTERS,
 	LETTERS, CAPITAL_LETTERS, DIGITS,
 	LETTERS, CAPITAL_LETTERS, DIGITS)
@@ -25,6 +26,7 @@ var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|ε)+\\#)*(%s|%s|%s|ε)+",
 func main() {
 
 	nfa := NFA_initializer()
+	testGrammar := make(grammar.Grammar)
 
 	filepath := ""
 
@@ -42,16 +44,14 @@ func main() {
 		conclusion := runner.RunnerNFA(nfa, line)
 		if conclusion {
 			fmt.Printf(" is ✅\n")
+			testGrammar.AddProduction(line)
 		} else {
 			fmt.Printf(" is ❌\n ERROR: incorrect grammar\n")
 			return
 		}
 	}
 
-	// TODO:
-	// - Test above code
-	// - Create a Production Type and parse the string to this type
-	// - Simplify the grammar
+	grammar.SimplifyGrammar(&testGrammar, true)
 
 }
 

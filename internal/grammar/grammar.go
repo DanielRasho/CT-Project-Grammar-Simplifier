@@ -1,6 +1,7 @@
 package grammar
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -26,9 +27,24 @@ func (g *Grammar) AddProduction(production string) {
 }
 
 // Given a grammar it removes all epsilon productions
-func SimplifyGrammar(grammar *Grammar) *Grammar {
-	// directNullables := identifyDirectNullables(grammar)
-	// allNullables := identifyIndirectNullables(grammar, *directNullables)
+func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
+	if printSteps {
+		fmt.Println("1️⃣  Grammar BEFORE simplification")
+		fmt.Println(grammar)
+		fmt.Println("=================================")
+	}
+	directNullables := identifyDirectNullables(grammar)
+	if printSteps {
+		fmt.Println("2️⃣  Direct Nullables found ")
+		fmt.Printf("\t%v\n", *directNullables)
+		fmt.Println("=================================")
+	}
+	allNullables := identifyIndirectNullables(grammar, *directNullables)
+	if printSteps {
+		fmt.Println("3️⃣  All Nullables found ")
+		fmt.Printf("\t%v\n", *allNullables)
+		fmt.Println("=================================")
+	}
 
 	// TODO: make the simplification with all the identified nullables
 	return nil
