@@ -50,11 +50,7 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          shuntingyard = createApp system "shuntingyard" ["gnumake" "go" "graphviz"];
-          balancer = createApp system "balancer" ["gnumake" "go" "graphviz"];
-          ast = createApp system "ast" ["gnumake" "go" "graphviz"];
-          afn = createApp system "afn" ["gnumake" "go" "graphviz"];
-          project = createApp system "project" ["gnumake" "go" "graphviz"];
+          grammar = createApp system "grammar" ["gnumake" "go"]
         });
     };
 }
