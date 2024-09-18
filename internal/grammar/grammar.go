@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+// Adds a production to a grammar, removing repeated body values.
 func (g *Grammar) AddProduction(production string) {
 	// Since a production has the shape A -> a|bC
 	// There are 2 divisions between the Head, Arrow, And Body.
@@ -24,6 +25,7 @@ func (g *Grammar) AddProduction(production string) {
 	}
 }
 
+// Given a grammar it removes all epsilon productions
 func SimplifyGrammar(grammar *Grammar) *Grammar {
 	// directNullables := identifyDirectNullables(grammar)
 	// allNullables := identifyIndirectNullables(grammar, *directNullables)
@@ -32,6 +34,8 @@ func SimplifyGrammar(grammar *Grammar) *Grammar {
 	return nil
 }
 
+// Return a list of all the Direct nullables on the grammar
+// Ex: A -> ε
 func identifyDirectNullables(grammar *Grammar) *[]string {
 
 	directNullables := make([]string, 0, 3)
@@ -47,6 +51,9 @@ func identifyDirectNullables(grammar *Grammar) *[]string {
 	return &directNullables
 }
 
+// Identify indirect nullables
+//
+// Returns: List of all nullables (direct an indirect)
 func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
 
 	pastNullables := make([]string, len(nullabes))
@@ -54,6 +61,11 @@ func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
 	copy(pastNullables, nullabes)
 	copy(newNullables, nullabes)
 
+	// The algorithm works by having a list of PAST_NULLABLES and a list of NEW_NULLABLES
+	// 1. On each step the new nullable productions found are added to NEW_NULLABLES
+	// 2. If NEW_NULLABLES and PAST_NULLABLES remain equal after one step, it means that
+	//    no new production where found, hence ALL NULLABLE PRODUCTION WHERE FOUND
+	// 3. Else, repeat step 1 and 2.
 	for {
 		for head, bodies := range *grammar {
 			// If the production is already nullable dont analize it.
@@ -90,6 +102,7 @@ func removeEpsilons(grammar *Grammar) *Grammar {
 	return nil
 }
 
+// Revoves duplicates on a slice.
 func removeDuplicates(slice []string) []string {
 	uniqueMap := make(map[string]bool)
 	var result []string
@@ -104,6 +117,11 @@ func removeDuplicates(slice []string) []string {
 	return result
 }
 
+// slice: sliceof single character strings,
+//
+// item: string to check
+//
+// Returns: true if item is make only by items of slice
 func isComposedOf(slice []string, item string) bool {
 	// Create a set for quick lookup
 	set := make(map[string]struct{}, len(slice))
@@ -120,7 +138,7 @@ func isComposedOf(slice []string, item string) bool {
 	return true
 }
 
-// Function to check if a string exists in a slice
+// Checks if a string exists in a slice
 func contains(slice []string, item string) bool {
 	for _, element := range slice {
 		if element == item {
