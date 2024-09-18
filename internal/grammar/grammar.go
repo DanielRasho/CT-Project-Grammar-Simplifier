@@ -30,7 +30,17 @@ func SimplifyGrammar(grammar *Grammar) *Grammar {
 
 func identifyDirectNullables(grammar *Grammar) *[]string {
 
-	return nil
+	directNullables := make([]string, 0, 3)
+
+	for head, body := range *grammar {
+		for _, v := range body {
+			if v == "ε" {
+				directNullables = append(directNullables, head)
+				continue
+			}
+		}
+	}
+	return &directNullables
 }
 
 func identifyIndirectNullables(grammar *Grammar, directNullabes []string) *[]string {

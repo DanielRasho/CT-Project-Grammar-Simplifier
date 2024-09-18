@@ -34,10 +34,21 @@ func TestAddProductionToNotEmptyGrammar(t *testing.T) {
 	grammar := make(Grammar)
 	grammar.AddProduction("A -> a|a|bc|C")
 	grammar.AddProduction("A -> a|B|J")
-	expectedBodyItems := []string{"a", "b", "C", "B", "J"}
+	expectedBodyItems := []string{"a", "bc", "C", "B", "J"}
 
 	if _, exist := grammar["A"]; !exist {
 		t.Fatalf("A production was not appended to the grammar\n")
 	}
 	areSlicesEqual(t, grammar["A"], expectedBodyItems)
+}
+
+func TestIdentifyNullables(t *testing.T) {
+	grammar := make(Grammar)
+	grammar.AddProduction("A -> ε|a|bc|C")
+	grammar.AddProduction("B -> a|B|ε")
+	grammar.AddProduction("B -> m")
+	expectedNullables := []string{"A", "B"}
+	response := identifyDirectNullables(&grammar)
+
+	areSlicesEqual(t, *response, expectedNullables)
 }
