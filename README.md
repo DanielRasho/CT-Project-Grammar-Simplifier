@@ -51,7 +51,7 @@ Los siguientes comandos crearán un entorno shell con todas las dependencias nec
 Este comando generará una serie de imágenes en el directorio `./graphs` representando el AST de cada expresión regular.
 
 ```bash
-nix run .#ast --experimental-features 'nix-command flakes'
+nix run .#grammar --experimental-features 'nix-command flakes'
 ```
 
 ## 🛠️ Troubleshooting
@@ -59,6 +59,6 @@ nix run .#ast --experimental-features 'nix-command flakes'
 Dependiendo de la shell que estés usando para ejecutar Nix, podrías necesitar ajustar el comando mostrado anteriormente. Algunas variantes incluyen:
 
 ```bash
-nix run .\#project --experimental-features 'nix-command flakes'
-nix run '.#project' --experimental-features 'nix-command flakes'
+nix run .\#grammar --experimental-features 'nix-command flakes'
+nix run '.#grammar' --experimental-features 'nix-command flakes'
 ```
