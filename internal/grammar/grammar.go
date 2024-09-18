@@ -25,6 +25,10 @@ func (g *Grammar) AddProduction(production string) {
 }
 
 func SimplifyGrammar(grammar *Grammar) *Grammar {
+	// directNullables := identifyDirectNullables(grammar)
+	// allNullables := identifyIndirectNullables(grammar, *directNullables)
+
+	// TODO: make the simplification with all the identified nullables
 	return nil
 }
 
@@ -43,9 +47,37 @@ func identifyDirectNullables(grammar *Grammar) *[]string {
 	return &directNullables
 }
 
-func identifyIndirectNullables(grammar *Grammar, directNullabes []string) *[]string {
+func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
 
-	return nil
+	pastNullables := make([]string, len(nullabes))
+	newNullables := make([]string, len(nullabes))
+	copy(pastNullables, nullabes)
+	copy(newNullables, nullabes)
+
+	for {
+		for head, bodies := range *grammar {
+			// If the production is already nullable dont analize it.
+			if contains(pastNullables, head) {
+				continue
+			}
+			// else check if it is nullable and add it to the NewNullables list
+			for _, body := range bodies {
+				isNullable := isComposedOf(pastNullables, body)
+				if isNullable {
+					newNullables = append(newNullables, head)
+					break
+				}
+			}
+		}
+
+		if len(pastNullables) == len(newNullables) {
+			break
+		}
+
+		pastNullables = newNullables
+	}
+
+	return &newNullables
 }
 
 func replaceNullables(grammar *Grammar, nullables []string) *Grammar {
@@ -70,4 +102,30 @@ func removeDuplicates(slice []string) []string {
 	}
 
 	return result
+}
+
+func isComposedOf(slice []string, item string) bool {
+	// Create a set for quick lookup
+	set := make(map[string]struct{}, len(slice))
+	for _, char := range slice {
+		set[char] = struct{}{}
+	}
+
+	// Check if every character in the item is in the set
+	for _, char := range item {
+		if _, exists := set[string(char)]; !exists {
+			return false
+		}
+	}
+	return true
+}
+
+// Function to check if a string exists in a slice
+func contains(slice []string, item string) bool {
+	for _, element := range slice {
+		if element == item {
+			return true
+		}
+	}
+	return false
 }

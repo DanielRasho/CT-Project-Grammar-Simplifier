@@ -42,13 +42,39 @@ func TestAddProductionToNotEmptyGrammar(t *testing.T) {
 	areSlicesEqual(t, grammar["A"], expectedBodyItems)
 }
 
-func TestIdentifyNullables(t *testing.T) {
+func TestIdentifyDirectNullables(t *testing.T) {
 	grammar := make(Grammar)
 	grammar.AddProduction("A -> ε|a|bc|C")
 	grammar.AddProduction("B -> a|B|ε")
-	grammar.AddProduction("B -> m")
+	grammar.AddProduction("C -> m")
 	expectedNullables := []string{"A", "B"}
 	response := identifyDirectNullables(&grammar)
 
 	areSlicesEqual(t, *response, expectedNullables)
+}
+
+func TestIdentifyIndirectNullables(t *testing.T) {
+	grammar := make(Grammar)
+	grammar.AddProduction("A -> ε")
+	grammar.AddProduction("B -> AA|ab")
+	grammar.AddProduction("C -> Ab")
+	directNullabes := identifyDirectNullables(&grammar)
+	response := identifyIndirectNullables(&grammar, *directNullabes)
+	expectedDirectNullables := []string{"A", "B"}
+
+	areSlicesEqual(t, *response, expectedDirectNullables)
+}
+
+func TestIdentifyManyIndirectNullables(t *testing.T) {
+	grammar := make(Grammar)
+	grammar.AddProduction("A -> ε")
+	grammar.AddProduction("D -> C")
+	grammar.AddProduction("C -> B")
+	grammar.AddProduction("B -> A")
+	grammar.AddProduction("J -> d")
+	directNullabes := identifyDirectNullables(&grammar)
+	response := identifyIndirectNullables(&grammar, *directNullabes)
+	expectedDirectNullables := []string{"A", "B", "C", "D"}
+
+	areSlicesEqual(t, *response, expectedDirectNullables)
 }
