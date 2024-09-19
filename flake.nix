@@ -50,7 +50,7 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          grammar = createApp system "grammar" ["gnumake" "go"]
+          grammar = createApp system "grammar" ["gnumake" "go"];
         });
     };
 }
