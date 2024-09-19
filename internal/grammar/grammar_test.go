@@ -125,7 +125,33 @@ var nullablesGrammarTest2 = []string{"A", "B"}
 var expectedGrammarTestReplace2 = Grammar{
 	"A": {"a", Epsilon},
 	"B": {"b", Epsilon},
-	"C": {"ABA", Epsilon + "BA", "AB" + Epsilon, "AA" + Epsilon + "A", Epsilon + "B" + Epsilon, Epsilon + Epsilon + "A", "A" + Epsilon + Epsilon, Epsilon + Epsilon + Epsilon},
+	"C": {"ABA", Epsilon + "BA", "AB" + Epsilon, "A" + Epsilon + "A", Epsilon + "B" + Epsilon, Epsilon + Epsilon + "A", "A" + Epsilon + Epsilon, Epsilon + Epsilon + Epsilon},
+}
+
+// Grammar y  resultado esperado par TestRemoveEpsilons
+var grammarTestRemoveEpsilons = Grammar{
+	"A": {"a", Epsilon},
+	"B": {"b", Epsilon},
+	"C": {"ABA", Epsilon + "BA", "AB" + Epsilon, "A" + Epsilon + "A", Epsilon + "B" + Epsilon, Epsilon + Epsilon + "A", "A" + Epsilon + Epsilon, Epsilon + Epsilon + Epsilon},
+}
+
+var expectedGrammarTestRemoveEpsilons = Grammar{
+	"A": {"a"},
+	"B": {"b"},
+	"C": {"ABA", "BA", "AB", "AA", "B", "A", "A"},
+}
+
+// Grammar y  resultado esperado par TestRemoveDuplicates
+var grammarTestRemoveDuplicates = Grammar{
+	"A": {"a"},
+	"B": {"b"},
+	"C": {"ABA", "BA", "AB", "AA", "B", "A", "A"},
+}
+
+var expectedGrammarTestRemoveDuplicates = Grammar{
+	"A": {"a"},
+	"B": {"b"},
+	"C": {"ABA", "BA", "AB", "AA", "B", "A"},
 }
 
 // Test para la función getNonTerminals usando TestGrammar1.
@@ -182,5 +208,30 @@ func TestReplaceNullables2(t *testing.T) {
 	// Comparar el resultado con el esperado
 	if !reflect.DeepEqual(*resultGrammar, expectedGrammarTestReplace2) {
 		t.Errorf("Resultado incorrecto.\nEsperado: %v\nObtenido: %v", expectedGrammarTestReplace2, *resultGrammar)
+	}
+}
+
+// Test para verificar que elimina epsilon de producciones
+func TestRemoveEpsilons(t *testing.T) {
+	// Ejecutar la función RemoveEpsilons
+	result := RemoveEpsilons(&grammarTestRemoveEpsilons)
+
+	// Comparar el resultado con la gramática esperada
+	if !reflect.DeepEqual(result, &expectedGrammarTestRemoveEpsilons) {
+		t.Errorf("Test failed. Expected: %v, Got: %v", expectedGrammarTestRemoveEpsilons, result)
+	}
+}
+
+// Test para verificar que eliminar producciones duplicadas
+func TestRemoveDuplicates(t *testing.T) {
+	// Crear una copia de la gramática para aplicar la función removeDuplicates
+	resultGrammar := make(Grammar)
+	for head, productions := range grammarTestRemoveDuplicates {
+		resultGrammar[head] = RemoveDuplicates(productions)
+	}
+
+	// Comparar el resultado con la gramática esperada
+	if !reflect.DeepEqual(resultGrammar, expectedGrammarTestRemoveDuplicates) {
+		t.Errorf("Test failed. Expected: %v, Got: %v", expectedGrammarTestRemoveDuplicates, resultGrammar)
 	}
 }

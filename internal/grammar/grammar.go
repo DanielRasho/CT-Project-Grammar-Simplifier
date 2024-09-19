@@ -20,11 +20,11 @@ func (g *Grammar) AddProduction(production string) {
 
 	// If production is not registered create it
 	if _, exist := (*g)[head]; !exist {
-		(*g)[head] = removeDuplicates(bodyItems)
+		(*g)[head] = RemoveDuplicates(bodyItems)
 	} else {
 		// Else append the body new items with the old ones
 		existentBodyItems := (*g)[head]
-		(*g)[head] = removeDuplicates(append(existentBodyItems, bodyItems...))
+		(*g)[head] = RemoveDuplicates(append(existentBodyItems, bodyItems...))
 	}
 }
 
@@ -187,7 +187,7 @@ func CalculateRemoveSize(production string, nonTerminals map[string]struct{}) in
 }
 
 // Revoves duplicates on a slice.
-func removeDuplicates(slice []string) []string {
+func RemoveDuplicates(slice []string) []string {
 	uniqueMap := make(map[string]bool)
 	var result []string
 
@@ -199,6 +199,35 @@ func removeDuplicates(slice []string) []string {
 	}
 
 	return result
+}
+
+// RemoveEpsilons elimina los caracteres epsilon de la producción
+func RemoveEpsilons(grammar *Grammar) *Grammar {
+	// Crear una nueva gramática para almacenar las producciones sin epsilon
+	newGrammar := make(Grammar)
+
+	// Iterar sobre las cabezas de la gramática y sus producciones
+	for head, productions := range *grammar {
+		var newNonEpsilonProductions []string
+
+		for _, production := range productions {
+			// Reemplazar epsilon por una cadena vacía
+			nonEpsilonProduction := strings.ReplaceAll(production, Epsilon, "")
+
+			// Solo agregar producciones no vacías
+			if nonEpsilonProduction != "" {
+				newNonEpsilonProductions = append(newNonEpsilonProductions, nonEpsilonProduction)
+			}
+		}
+
+		// Evitar agregar entradas vacías en la nueva gramática
+		if len(newNonEpsilonProductions) > 0 {
+			newGrammar[head] = newNonEpsilonProductions
+		}
+	}
+
+	// Retornar la nueva gramática
+	return &newGrammar
 }
 
 // slice: sliceof single character strings,
