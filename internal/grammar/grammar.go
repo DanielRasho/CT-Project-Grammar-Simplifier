@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+const Epsilon = "ε"
+
 // Adds a production to a grammar, removing repeated body values.
 func (g *Grammar) AddProduction(production string) {
 	// Since a production has the shape A -> a|bC
@@ -108,14 +110,80 @@ func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
 	return &newNullables
 }
 
-func replaceNullables(grammar *Grammar, nullables []string) *Grammar {
+// ReplaceNullables reemplaza las producciones que contienen símbolos anulables.
+func ReplaceNullables(grammar *Grammar, nullables []string) *Grammar {
+	newGrammar := make(Grammar)
 
-	return nil
+	// Paso 1. Leer cada body de la gramática por cada head
+	for head, productions := range *grammar {
+		productionSet := make(map[string]struct{}) // Mapa para rastrear producciones únicas
+		var newProductions []string
+
+		// Cola para procesar producciones pendientes
+		queue := append([]string{}, productions...)
+
+		// Procesar todas las producciones en la cola
+		for len(queue) > 0 {
+			production := queue[0]
+			queue = queue[1:]
+
+			// Caso 1: No hay símbolos anulables, se añade la producción tal cual si no se ha añadido antes
+			if _, exists := productionSet[production]; !exists {
+				newProductions = append(newProductions, production)
+				productionSet[production] = struct{}{}
+			}
+
+			// Caso 2: Existen símbolos anulables en la producción
+			for _, nullable := range nullables {
+				if strings.Contains(production, nullable) {
+					// Generar todas las combinaciones posibles reemplazando el símbolo nullable
+					combinations := CombinationNullables(nullable, production)
+					for _, newProd := range combinations {
+						// Evitar duplicados y procesar nuevas combinaciones
+						if _, exists := productionSet[newProd]; !exists {
+							newProductions = append(newProductions, newProd)
+							productionSet[newProd] = struct{}{}
+							queue = append(queue, newProd)
+						}
+					}
+				}
+			}
+		}
+
+		newGrammar[head] = newProductions
+	}
+
+	return &newGrammar
 }
 
-func removeEpsilons(grammar *Grammar) *Grammar {
+// CombinationNullables genera todas las combinaciones posibles al reemplazar el símbolo nullable.
+func CombinationNullables(nullable string, baseProduction string) []string {
+	var newProductions []string
+	chars := []rune(baseProduction)
 
-	return nil
+	// Recorrer la producción y reemplazar el símbolo nullable por epsilon
+	for i := 0; i < len(chars); i++ {
+		if string(chars[i]) == nullable {
+			// Crear una nueva producción con el símbolo reemplazado por epsilon
+			newProd := []rune(baseProduction)
+			newProd[i] = []rune(Epsilon)[0]
+			newProductions = append(newProductions, string(newProd))
+		}
+	}
+
+	return newProductions
+}
+
+// CalculateRemoveSize cuenta cuántas veces aparece un no terminal en una producción.
+func CalculateRemoveSize(production string, nonTerminals map[string]struct{}) int {
+	count := 0
+	for _, char := range production {
+		symbol := string(char)
+		if _, exists := nonTerminals[symbol]; exists {
+			count++
+		}
+	}
+	return count
 }
 
 // Revoves duplicates on a slice.

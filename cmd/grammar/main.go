@@ -17,7 +17,7 @@ const CAPITAL_LETTERS string = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
 const DIGITS string = "[0123456789]"
 
 // A -> ab|ε
-var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|ε)+#)*(%s|%s|%s|ε)+",
+var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|ε)+\\|)*(%s|%s|%s|ε)+",
 	CAPITAL_LETTERS,
 	LETTERS, CAPITAL_LETTERS, DIGITS,
 	LETTERS, CAPITAL_LETTERS, DIGITS)
