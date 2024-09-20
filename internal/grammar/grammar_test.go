@@ -138,7 +138,7 @@ var grammarTestRemoveEpsilons = Grammar{
 var expectedGrammarTestRemoveEpsilons = Grammar{
 	"A": {"a"},
 	"B": {"b"},
-	"C": {"ABA", "BA", "AB", "AA", "B", "A", "A"},
+	"C": {"ABA", "BA", "AB", "AA", "B", "A"},
 }
 
 // Grammar y  resultado esperado par TestRemoveDuplicates
