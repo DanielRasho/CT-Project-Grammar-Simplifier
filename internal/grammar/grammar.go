@@ -32,15 +32,21 @@ func (g *Grammar) AddProduction(production string) {
 func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
 	if printSteps {
 		fmt.Println("1️⃣  Grammar BEFORE simplification")
-		fmt.Println(grammar)
+		for head, productions := range *grammar {
+			fmt.Printf("%s -> %s\n", head, strings.Join(productions, " | "))
+		}
 		fmt.Println("=================================")
 	}
+
+	// Paso 1: Identificar los símbolos directos anulables
 	directNullables := identifyDirectNullables(grammar)
 	if printSteps {
 		fmt.Println("2️⃣  Direct Nullables found ")
 		fmt.Printf("\t%v\n", *directNullables)
 		fmt.Println("=================================")
 	}
+
+	// Paso 2: Identificar todos los símbolos anulables (directos e indirectos)
 	allNullables := identifyIndirectNullables(grammar, *directNullables)
 	if printSteps {
 		fmt.Println("3️⃣  All Nullables found ")
@@ -48,8 +54,27 @@ func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
 		fmt.Println("=================================")
 	}
 
-	// TODO: make the simplification with all the identified nullables
-	return nil
+	// Paso 3: Reemplazar los símbolos anulables en las producciones
+	grammarWithoutEpsilons := ReplaceNullables(grammar, *allNullables)
+	if printSteps {
+		fmt.Println("4️⃣  Grammar after replacing nullables")
+		for head, productions := range *grammarWithoutEpsilons {
+			fmt.Printf("%s -> %s\n", head, strings.Join(productions, " | "))
+		}
+		fmt.Println("=================================")
+	}
+
+	// Paso 4: Eliminar producciones épsilon
+	finalGrammar := RemoveEpsilons(grammarWithoutEpsilons)
+	if printSteps {
+		fmt.Println("5️⃣  Grammar AFTER epsilon removal")
+		for head, productions := range *finalGrammar {
+			fmt.Printf("%s -> %s\n", head, strings.Join(productions, " | "))
+		}
+		fmt.Println("=================================")
+	}
+
+	return finalGrammar
 }
 
 // Return a list of all the Direct nullables on the grammar
@@ -201,7 +226,7 @@ func RemoveDuplicates(slice []string) []string {
 	return result
 }
 
-// RemoveEpsilons elimina los caracteres epsilon de la producción
+// RemoveEpsilons elimina los caracteres epsilon de la producción y elimina duplicados
 func RemoveEpsilons(grammar *Grammar) *Grammar {
 	// Crear una nueva gramática para almacenar las producciones sin epsilon
 	newGrammar := make(Grammar)
@@ -219,6 +244,9 @@ func RemoveEpsilons(grammar *Grammar) *Grammar {
 				newNonEpsilonProductions = append(newNonEpsilonProductions, nonEpsilonProduction)
 			}
 		}
+
+		// Eliminar duplicados en las nuevas producciones
+		newNonEpsilonProductions = RemoveDuplicates(newNonEpsilonProductions)
 
 		// Evitar agregar entradas vacías en la nueva gramática
 		if len(newNonEpsilonProductions) > 0 {

@@ -1,8 +1,10 @@
-A -> ε
-A -> a 
-A -> b
-D -> C
-C -> B
-B -> A
-J -> d
-J -> da
+S -> 0A0|1B1|BB
+A -> C
+B -> S|A
+C -> S|ε
+
+S -> aAa|bBb|ε
+A -> C|a
+B -> C|b
+C -> CDE|ε
+D -> A|B|ab

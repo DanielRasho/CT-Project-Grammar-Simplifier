@@ -2,18 +2,22 @@ package abstract_syntax_tree
 
 import (
 	"testing"
+
+	shuntingyard "github.com/DanielRasho/Computation-Theory/internal/shuntingyard"
 )
 
-// Función auxiliar para comparrar valores de nodos
+// Función auxiliar para comparar valores de nodos
 func compareNodes(t *testing.T, got, want Node) {
 	if got.String() != want.String() {
 		t.Errorf("got %v, want %v", got.String(), want.String())
 	}
 }
 
-// Test para una expresión postfix simple evaluando una concatenación
+// Test para una expresión regex simple evaluando una concatenación
 func TestBuildASTSimpleConcatenation(t *testing.T) {
-	postfix := "ab·c·"
+	regex := "abc"
+	_, postfix, _ := shuntingyard.RegexToPostfix(regex, false)
+
 	want := &OperatorNode{
 		Value: "·",
 		Operands: []Node{
@@ -32,9 +36,11 @@ func TestBuildASTSimpleConcatenation(t *testing.T) {
 	compareNodes(t, got, want)
 }
 
-// Test para una expresión postfix con dos concatenaciones evaluando múltiples concatenaciones
+// Test para una expresión regex con múltiples concatenaciones
 func TestBuildASTMultipleConcatenations(t *testing.T) {
-	postfix := "ab·cd··"
+	regex := "abcd"
+	_, postfix, _ := shuntingyard.RegexToPostfix(regex, false)
+
 	want := &OperatorNode{
 		Value: "·",
 		Operands: []Node{
@@ -59,14 +65,15 @@ func TestBuildASTMultipleConcatenations(t *testing.T) {
 	compareNodes(t, got, want)
 }
 
-// Test para una expresión postfix que combina una disyunción (OR) y una concatenación
+// Test para una expresión regex que combina una disyunción (OR) y una concatenación
 func TestBuildASTDisjunctionAndConcatenation(t *testing.T) {
-	postfix := "ab|c·"
+	regex := "ab|c"
+	_, postfix, _ := shuntingyard.RegexToPostfix(regex, false)
 	want := &OperatorNode{
-		Value: "·",
+		Value: "|",
 		Operands: []Node{
 			&OperatorNode{
-				Value: "|",
+				Value: "·",
 				Operands: []Node{
 					&CharacterNode{Value: "a"},
 					&CharacterNode{Value: "b"},
@@ -80,14 +87,16 @@ func TestBuildASTDisjunctionAndConcatenation(t *testing.T) {
 	compareNodes(t, got, want)
 }
 
-// Test para una expresión postfix compleja evaluando combinaciones de concatenaciones y disyunciones
+// Test para una expresión regex compleja evaluando combinaciones de concatenaciones y disyunciones
 func TestBuildASTComplexExpression(t *testing.T) {
-	postfix := "abc·d|·"
+	regex := "ab|cd"
+	_, postfix, _ := shuntingyard.RegexToPostfix(regex, false)
+
 	want := &OperatorNode{
-		Value: "·",
+		Value: "|",
 		Operands: []Node{
 			&OperatorNode{
-				Value: "|",
+				Value: "·",
 				Operands: []Node{
 					&OperatorNode{
 						Value: "·",
@@ -107,9 +116,11 @@ func TestBuildASTComplexExpression(t *testing.T) {
 	compareNodes(t, got, want)
 }
 
-// Test para una expresión postfix con varios operadores de concatenación encadenados
+// Test para una expresión regex con varios operadores de concatenación encadenados
 func TestBuildASTMultipleConcatenationsChain(t *testing.T) {
-	postfix := "ab·c·d·"
+	regex := "abcd"
+	_, postfix, _ := shuntingyard.RegexToPostfix(regex, false)
+
 	want := &OperatorNode{
 		Value: "·",
 		Operands: []Node{
@@ -134,29 +145,19 @@ func TestBuildASTMultipleConcatenationsChain(t *testing.T) {
 	compareNodes(t, got, want)
 }
 
-// Test para una expresión postfix con caracteres escapados
+// Test para una expresión regex con caracteres escapados
 func TestBuildASTWithEscapedCharacters(t *testing.T) {
-	// Expresión postfix con caracteres escapados (barra invertida y otros símbolos)
-	postfix := "a\\|·"
+	regex := "a\\|"
+	_, postfix, _ := shuntingyard.RegexToPostfix(regex, false)
 
-	// El árbol de sintaxis esperado debe reflejar los caracteres correctamente escapados.
 	want := &OperatorNode{
 		Value: "·",
 		Operands: []Node{
-			&OperatorNode{
-				Value: "|", // Operador '|' que aparece en el postfix
-				Operands: []Node{
-					&CharacterNode{Value: "a"},  // Carácter 'a'
-					&CharacterNode{Value: "\\"}, // Carácter barra invertida escapado
-				},
-			},
-			&CharacterNode{Value: "\\"}, // Carácter barra invertida escapado
+			&CharacterNode{Value: "a"},
+			&CharacterNode{Value: "|"},
 		},
 	}
 
-	// Llamada a la función para construir el AST desde la expresión postfix
 	got := BuildAST(postfix)
-
-	// Verificación de que el AST construido es igual al árbol esperado
 	compareNodes(t, got, want)
 }

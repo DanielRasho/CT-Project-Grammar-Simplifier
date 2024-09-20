@@ -57,7 +57,7 @@ func main() {
 
 // Creates the NFA for check if a production is valid
 func NFA_initializer() *nfaAutomata.NFA {
-	postfix, _, _ := shuttingyard.RegexToPostfix(PRODUCTIONS_REGEX, false)
+	_, postfix, _ := shuttingyard.RegexToPostfix(PRODUCTIONS_REGEX, false)
 	root := ast.BuildAST(postfix)
 	nfa := nfaAutomata.BuildNFA(root)
 
