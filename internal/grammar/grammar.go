@@ -31,47 +31,42 @@ func (g *Grammar) AddProduction(production string) {
 // Given a grammar it removes all epsilon productions
 func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
 	if printSteps {
-		fmt.Println("1️⃣  Grammar BEFORE simplification")
+		fmt.Println("\n1️⃣  Grammar BEFORE simplification")
 		for head, productions := range *grammar {
 			fmt.Printf("%s -> %s\n", head, strings.Join(productions, " | "))
 		}
-		fmt.Println("=================================")
 	}
 
 	// Paso 1: Identificar los símbolos directos anulables
 	directNullables := identifyDirectNullables(grammar)
 	if printSteps {
-		fmt.Println("2️⃣  Direct Nullables found ")
+		fmt.Println("\n2️⃣  Direct Nullables found ")
 		fmt.Printf("\t%v\n", *directNullables)
-		fmt.Println("=================================")
 	}
 
 	// Paso 2: Identificar todos los símbolos anulables (directos e indirectos)
 	allNullables := identifyIndirectNullables(grammar, *directNullables)
 	if printSteps {
-		fmt.Println("3️⃣  All Nullables found ")
+		fmt.Println("\n3️⃣  All Nullables found ")
 		fmt.Printf("\t%v\n", *allNullables)
-		fmt.Println("=================================")
 	}
 
 	// Paso 3: Reemplazar los símbolos anulables en las producciones
 	grammarWithoutEpsilons := ReplaceNullables(grammar, *allNullables)
 	if printSteps {
-		fmt.Println("4️⃣  Grammar after replacing nullables")
+		fmt.Println("\n4️⃣  Grammar AFTER replacing nullables")
 		for head, productions := range *grammarWithoutEpsilons {
 			fmt.Printf("%s -> %s\n", head, strings.Join(productions, " | "))
 		}
-		fmt.Println("=================================")
 	}
 
 	// Paso 4: Eliminar producciones épsilon
 	finalGrammar := RemoveEpsilons(grammarWithoutEpsilons)
 	if printSteps {
-		fmt.Println("5️⃣  Grammar AFTER epsilon removal")
+		fmt.Println("\n5️⃣  Grammar AFTER epsilon removal")
 		for head, productions := range *finalGrammar {
 			fmt.Printf("%s -> %s\n", head, strings.Join(productions, " | "))
 		}
-		fmt.Println("=================================")
 	}
 
 	return finalGrammar
