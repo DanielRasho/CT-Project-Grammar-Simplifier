@@ -3,6 +3,7 @@
 Este proyecto busca simplificar y verificar gramaticas libres de contexto
 
 [🔴VIDEO DE EJECUCION AQUI](https://youtu.be/TqcEflv9wao)
+[🔴VIDEO DE EXPLICACIÓN DE CODIGO](https://www.youtube.com/watch?v=RfeBYK0hnwU)
 
 ## 📝 Entrada
 El programa recibe la ruta de un archivo con un listado de producciones, con un formato como el siguiente
