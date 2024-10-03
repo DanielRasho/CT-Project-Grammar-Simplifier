@@ -7,28 +7,28 @@ func initializeUnaryPairs(originalGrammar *Grammar) map[string][]string {
 	nonTerminals := getNonTerminals(originalGrammar)
 	unaryBase := make(map[string][]string)
 
-	// Inicializa las parejas unarias y extiende con producciones unarias
+	// Se crean las bases unarias por cada encabezado de producciones de las gramáticas
 	for key := range nonTerminals {
 		unaryBase[key] = []string{key} // Cada no terminal se inicializa con su propia pareja
 	}
 
+	// Añadir los unarios de una misma producción a unaryBase correspondiente a su encabezado
 	for head, productions := range *originalGrammar {
 		for _, production := range productions {
+			// Si la producción es unaria
 			if isUnary(production, nonTerminals) {
-				unaryBase[head] = append(unaryBase[head], production)
+				// Si la producción no está en unaryBase, añadirla
+				if !contains(unaryBase[head], production) {
+					unaryBase[head] = append(unaryBase[head], production)
+				}
 			}
 		}
-	}
-
-	// Elimina duplicados de las producciones unarias
-	for key, productions := range unaryBase {
-		unaryBase[key] = RemoveDuplicates(productions)
 	}
 
 	return unaryBase
 }
 
-// Encuentra todas las parejas unarias
+// Encuentra todas las parejas unarias de toda la gramática
 func findUnaryPairs(unaryBase map[string][]string) map[string][]string {
 	// Crear un nuevo mapa para almacenar las parejas unarias extendidas
 	unaryPairs := make(map[string][]string)
@@ -38,22 +38,27 @@ func findUnaryPairs(unaryBase map[string][]string) map[string][]string {
 		unaryPairs[key] = value
 	}
 
-	// Por cada clave, expandir sus valores
+	// Por cada clave, encontrar todas las producciones unarias posibles a partir de un no terminal
 	for key := range unaryPairs {
 		expanded := true // Bandera para indicar si se ha realizado una expansión
+
+		// Seguir buscando producciones hasta que ya no existan producciones por añadir
 		for expanded {
-			expanded = false // Resetear la bandera
+			expanded = false
 
 			// Obtener los valores actuales
 			currentValues := unaryPairs[key]
 			if len(currentValues) > 0 {
-				lastValue := currentValues[len(currentValues)-1] // Obtener el último valor
+				lastValue := currentValues[len(currentValues)-1] // Comenzar a partir de la última producción
 
-				// Por cada llave, agregar valores
-				for skey, svalue := range unaryPairs {
-					if lastValue == skey {
-						// Agregar todos los valores de skey a la key, asegurándose de no duplicar
-						for _, sv := range svalue {
+				// Obtener los sub_valores de la sub_llave buscada,
+				// (último valor del listado del encabezado que se lee)
+				for sub_key, sub_value := range unaryPairs {
+					if lastValue == sub_key {
+						// Agregar todos los valores de la sub_llave a la llave original, asegurándose de no duplicar
+						for _, sv := range sub_value {
+
+							// Si los valores actuales no contienene los sub_valores añadirlo
 							if !contains(unaryPairs[key], sv) {
 								unaryPairs[key] = append(unaryPairs[key], sv)
 								expanded = true // Si se agregó un nuevo elemento, se establece la bandera
@@ -76,7 +81,7 @@ func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[string][]st
 	// Hacer una nueva gramática y para el head de cada unaryPairs
 	// traer las producciones no unarias
 	for key, values := range unaryPairs {
-		// Inicializa las producciones para el no terminal actual
+		// Producciones para el no terminal actual
 		var productions []string
 
 		// Para cada cabeza de la gramática original
@@ -84,20 +89,14 @@ func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[string][]st
 			if key == head {
 				// Por cada value en las producciones unarias
 				for _, value := range values {
-					// Eliminar ese value en los values de key
-					// Y obtener las producciones de value eliminado
-					// Siempre que no sea un unario por medio de isUnary
-					if !isUnary(value, nonTerminals) {
-						// Si no es unario, añade las producciones a la lista
-						productions = append(productions, value)
-					} else {
-						// Agregar las producciones de value a key
-						if newProductions, exists := (*originalGrammar)[value]; exists {
-							for _, newProduction := range newProductions {
-								// Verifica si la nueva producción no es un unario antes de añadir
-								if !isUnary(newProduction, nonTerminals) {
-									productions = append(productions, newProduction)
-								}
+
+					// Existe el value de unarypair en la gramatica original como encabezado
+					if newProductions, exists := (*originalGrammar)[value]; exists {
+						// Por cada producción del encabezado
+						for _, newProduction := range newProductions {
+							// Si no es unario añadirlo a las producciones
+							if !isUnary(newProduction, nonTerminals) {
+								productions = append(productions, newProduction)
 							}
 						}
 					}
