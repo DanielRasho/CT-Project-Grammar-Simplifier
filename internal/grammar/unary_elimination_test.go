@@ -5,7 +5,7 @@ import (
 )
 
 // Datos de prueba
-var grammarTest = Grammar{
+var grammarTestUnaryElimination = Grammar{
 	"A": {"A", "B", "D"},
 	"B": {"C"},
 	"C": {"abc", "D"},
@@ -45,8 +45,9 @@ var expectedRemoveUnaryProductions = Grammar{
 	"E": {"fgh"},
 }
 
+// Test para la base de parejas unarias
 func TestUnaryPairs(t *testing.T) {
-	result := initializeUnaryPairs(&grammarTest)
+	result := initializeUnaryPairs(&grammarTestUnaryElimination)
 
 	// Comprobar si los resultados son iguales
 	for key, expectedValues := range expectedUnaryPairs {
@@ -61,6 +62,7 @@ func TestUnaryPairs(t *testing.T) {
 	}
 }
 
+// Test para encontrar las parejas unarias de toda la gramática
 func TestFindUnaryPairs(t *testing.T) {
 	result := findUnaryPairs(expectedUnaryPairs)
 
@@ -77,8 +79,9 @@ func TestFindUnaryPairs(t *testing.T) {
 	}
 }
 
+// Test para remover producciones unarias
 func TestRemoveUnaryProductions(t *testing.T) {
-	result := removeUnaryProductions(&grammarTest, expectedFindUnaryPairs, nonTerminalsTest)
+	result := removeUnaryProductions(&grammarTestUnaryElimination, expectedFindUnaryPairs, nonTerminalsTest)
 
 	// Comprobar si los resultados son iguales
 	for key, expectedValues := range expectedRemoveUnaryProductions {
