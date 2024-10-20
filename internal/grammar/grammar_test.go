@@ -1,18 +1,19 @@
 package grammar
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestAddProduction(t *testing.T) {
+func TestAddProductionFromString(t *testing.T) {
 	// Create a new Grammar instance
 	g := Grammar{
 		productions: make(map[Symbol][][]Symbol),
 	}
 
 	// Add some productions
-	g.AddProduction("A -> a|{B}C|{B}C")
-	g.AddProduction("B -> b|{C}D")
+	g.AddProductionFromString("A -> a|{B}C|{B}C")
+	g.AddProductionFromString("B -> b|{C}D")
 
 	// Check the productions after adding
 	expectedGrammar := `NonTerminals: [{A_0},{B_0},{C_0}]
@@ -28,7 +29,7 @@ Terminals: [a,C,b,D]
 	// fmt.Println(g.String(true))
 }
 
-func TestAddDuplicateProduction(t *testing.T) {
+func TestAddDuplicateProductionFromString(t *testing.T) {
 
 	// Create a new Grammar instance
 	g := Grammar{
@@ -36,9 +37,9 @@ func TestAddDuplicateProduction(t *testing.T) {
 	}
 
 	// Add some productions
-	g.AddProduction("A -> a|{B}C|{B}C")
-	g.AddProduction("B -> b|{C}D")
-	g.AddProduction("B -> {C}D")
+	g.AddProductionFromString("A -> a|{B}C|{B}C")
+	g.AddProductionFromString("B -> b|{C}D")
+	g.AddProductionFromString("B -> {C}D")
 
 	expectedGrammar := `NonTerminals: [{A_0},{B_0},{C_0}]
 Terminals: [a,C,b,D]
@@ -53,7 +54,7 @@ Terminals: [a,C,b,D]
 	// fmt.Println(g.String(true))
 
 }
-func TestAddNonTerminalOnBody(t *testing.T) {
+func TestAddNonTerminalOnBodyFromString(t *testing.T) {
 
 	// Create a new Grammar instance
 	g := Grammar{
@@ -61,9 +62,9 @@ func TestAddNonTerminalOnBody(t *testing.T) {
 	}
 
 	// Add some productions
-	g.AddProduction("A -> a|{B}C|{B}C")
-	g.AddProduction("B -> b|{C}D")
-	g.AddProduction("B -> {M}")
+	g.AddProductionFromString("A -> a|{B}C|{B}C")
+	g.AddProductionFromString("B -> b|{C}D")
+	g.AddProductionFromString("B -> {M}")
 
 	expectedGrammar := `NonTerminals: [{A_0},{B_0},{C_0},{M_0}]
 Terminals: [a,C,b,D]
@@ -77,6 +78,47 @@ Terminals: [a,C,b,D]
 
 	// fmt.Println(g.String(true))
 
+}
+
+func TestAddProduction(t *testing.T) {
+
+	// Create a new Grammar instance
+	g := Grammar{
+		productions: make(map[Symbol][][]Symbol),
+	}
+	g.AddProductionFromString("A -> a|b|{B}C")
+	g.AddProductionFromString("B -> b|{C}D")
+
+	// Test 1: Add a production for head "A" with terminal body
+	bodies1 := [][]Symbol{
+		{{isTerminal: true, value: "a", id: 0}},
+	}
+	head1 := g.AddProduction("A", bodies1)
+
+	fmt.Println(g.String(true))
+	fmt.Println(head1.String())
+}
+
+func TestAddProductionSymbol(t *testing.T) {
+
+	// Create a new Grammar instance
+	g := Grammar{
+		productions: make(map[Symbol][][]Symbol),
+	}
+	g.AddProductionFromString("A -> a|b|{B}C")
+	g.AddProductionFromString("B -> b|{C}D")
+
+	// Test 1: Add a production for head "A" with terminal body
+	bodies1 := [][]Symbol{
+		{{isTerminal: true, value: "j", id: 0}},
+		{{isTerminal: true, value: "b", id: 0}},
+	}
+	head1 := Symbol{value: "A", isTerminal: false}
+
+	g.AddProductionBodies(head1, bodies1)
+
+	fmt.Println(g.String(true))
+	fmt.Println(head1.String())
 }
 
 func TestRemoveDuplicates(t *testing.T) {
