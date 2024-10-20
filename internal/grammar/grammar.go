@@ -1,5 +1,6 @@
 package grammar
 
+/*
 import (
 	"fmt"
 	"strings"
@@ -48,3 +49,4 @@ func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
 
 	return finalGrammar
 }
+*/

@@ -1,5 +1,6 @@
 package grammar
 
+/*
 // Inicializa las parejas base (A, A) para cada no terminal A y las producciones unarias en su mismo conjunto
 func initializeUnaryPairs(originalGrammar *Grammar) map[string][]string {
 	nonTerminals := getNonTerminals(originalGrammar)
@@ -115,3 +116,4 @@ func isUnary(production string, nonTerminals map[string]struct{}) bool {
 	_, exists := nonTerminals[production]
 	return exists
 }
+*/

@@ -1,68 +1,72 @@
 package grammar
 
 import (
+	"fmt"
 	"testing"
 )
 
-var grammarFinalTest = Grammar{
-	"S":   {"NP VP"},
-	"VP":  {"VP PP", "V NP", "cooks", "drinks", "eats", "cuts"},
-	"PP":  {"P NP"},
-	"NP":  {"Det N", "he", "she"},
-	"V":   {"cooks", "drinks", "eats", "cuts"},
-	"P":   {"in", "with"},
-	"N":   {"cat", "dog", "beer", "cake", "juice", "meat", "soup", "fork", "knife", "oven", "spoon"},
-	"Det": {"a", "the"},
-}
-
-// Grammar y resultado esperado para probar la obtención de terminales y no terminales
-var grammarTerminalesTest = Grammar{
-	"A": {"ab", "bb", "Ba"},
-	"B": {"ab", "bb", "Ba"},
-	"C": {"ab", "bb", Epsilon},
-}
-
-var expectedNonTerminals = map[string]struct{}{
-	"A": {},
-	"B": {},
-	"C": {},
-}
-
-var expectedTerminals = map[string]struct{}{
-	"a": {},
-	"b": {},
-	"ε": {},
-}
-
-// Test para la función getNonTerminals usando TestGrammar1.
-func TestGetNonTerminals(t *testing.T) {
-
-	nonTerminals := getNonTerminals(&grammarTerminalesTest)
-
-	if len(nonTerminals) != len(expectedNonTerminals) {
-		t.Errorf("Se esperaba %v, pero se obtuvo %v", expectedNonTerminals, nonTerminals)
+func TestAddProduction(t *testing.T) {
+	// Create a new Grammar instance
+	g := Grammar{
+		productions: make(map[Symbol][][]Symbol),
 	}
 
-	for nt := range expectedNonTerminals {
-		if _, exists := nonTerminals[nt]; !exists {
-			t.Errorf("El no terminal %s no se encontró en el resultado", nt)
-		}
+	// Add some productions
+	g.AddProduction("A -> a|{B}C")
+	g.AddProduction("B -> b|{C}D")
+
+	fmt.Println(g.String())
+
+	// Check the productions after adding
+	expectedGrammar := "{A_0} -> a|{B_0}C\n{B_0} -> b|{C_0}D\n"
+	if g.String() != expectedGrammar {
+		t.Errorf("Expected %q, but got %q", expectedGrammar, g.String())
+	}
+
+	// Add a duplicate production
+	g.AddProduction("A -> a|{B}C")
+	expectedGrammar = "{A_0} -> a|{B_0}C\n{B_0} -> b|{C_0}D\n"
+	if g.String() != expectedGrammar {
+		t.Errorf("Expected %q, but got %q after adding duplicate production", expectedGrammar, g.String())
+	}
+
+	// Add another production with new symbols
+	g.AddProduction("C -> c")
+	expectedGrammar = "{A_0} -> a|{B_0}C\n{B_0} -> b|{C_0}D\n{C_0} -> c\n"
+	if g.String() != expectedGrammar {
+		t.Errorf("Expected %q, but got %q after adding new production", expectedGrammar, g.String())
+	}
+
+	// Check terminals and non-terminals
+	if len(g.terminals) != 2 { // "a" and "b" from the first two productions
+		t.Errorf("Expected 2 terminals, but got %d", len(g.terminals))
+	}
+	if len(g.nonTerminals) != 3 { // A, B, C
+		t.Errorf("Expected 3 non-terminals, but got %d", len(g.nonTerminals))
 	}
 }
 
-// Test para la función getTerminals usando TestGrammar1.
-func TestGetTerminals(t *testing.T) {
-	nonTerminals := getNonTerminals(&grammarTerminalesTest)
-
-	terminals := getTerminals(&grammarTerminalesTest, nonTerminals)
-
-	if len(terminals) != len(expectedTerminals) {
-		t.Errorf("Se esperaba %v, pero se obtuvo %v", expectedTerminals, terminals)
+func TestRemoveDuplicates(t *testing.T) {
+	slice := []Symbol{
+		{isTerminal: true, value: "a", id: 0},
+		{isTerminal: true, value: "a", id: 0},
+		{isTerminal: false, value: "B", id: 0},
 	}
 
-	for st := range expectedTerminals {
-		if _, exists := terminals[st]; !exists {
-			t.Errorf("El terminal %s no se encontró en el resultado", st)
+	uniqueSlice := removeDuplicatesSymbols(slice)
+
+	if len(uniqueSlice) != 2 {
+		t.Errorf("Expected 2 unique symbols, but got %d", len(uniqueSlice))
+	}
+
+	expected := []Symbol{
+		{isTerminal: true, value: "a", id: 0},
+		{isTerminal: false, value: "B", id: 0},
+	}
+
+	for i, sym := range expected {
+		if uniqueSlice[i] != sym {
+			t.Errorf("Expected symbol %v at index %d, but got %v", sym, i, uniqueSlice[i])
 		}
 	}
 }

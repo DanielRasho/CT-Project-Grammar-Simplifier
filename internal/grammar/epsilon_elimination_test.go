@@ -1,10 +1,6 @@
 package grammar
 
-import (
-	"reflect"
-	"testing"
-)
-
+/*
 func areSlicesEqual(t *testing.T, response []string, expect []string) {
 	value := ""
 	for _, v := range response {
@@ -183,3 +179,4 @@ func TestRemoveDuplicates(t *testing.T) {
 		t.Errorf("Test failed. Expected: %v, Got: %v", expectedGrammarTestRemoveDuplicates, resultGrammar)
 	}
 }
+*/

@@ -1,5 +1,6 @@
 package grammar
 
+/*
 // Función que encuentra los símbolos que generan cadenas de terminales.
 func findGeneratingSymbols(originalGrammar *Grammar) (map[string]struct{}, map[string]struct{}) {
 	nonTerminals := getNonTerminals(originalGrammar)
@@ -94,3 +95,4 @@ func findReachableSymbols(originalGrammar *Grammar, startSymbol string) (map[str
 
 	return reachableSymbols, unreachableSymbols
 }
+*/

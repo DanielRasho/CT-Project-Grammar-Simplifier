@@ -1,7 +1,6 @@
 package grammar
 
-import "strings"
-
+/*
 // Return a list of all the Direct nullables on the grammar
 // Ex: A -> ε
 func identifyDirectNullables(grammar *Grammar) *[]string {
@@ -182,3 +181,4 @@ func RemoveEpsilons(grammar *Grammar) *Grammar {
 	// Retornar la nueva gramática
 	return &newGrammar
 }
+*/
