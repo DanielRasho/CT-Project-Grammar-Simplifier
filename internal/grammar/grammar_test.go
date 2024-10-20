@@ -1,7 +1,6 @@
 package grammar
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -12,38 +11,72 @@ func TestAddProduction(t *testing.T) {
 	}
 
 	// Add some productions
-	g.AddProduction("A -> a|{B}C")
+	g.AddProduction("A -> a|{B}C|{B}C")
 	g.AddProduction("B -> b|{C}D")
 
-	fmt.Println(g.String())
-
 	// Check the productions after adding
-	expectedGrammar := "{A_0} -> a|{B_0}C\n{B_0} -> b|{C_0}D\n"
-	if g.String() != expectedGrammar {
-		t.Errorf("Expected %q, but got %q", expectedGrammar, g.String())
+	expectedGrammar := `NonTerminals: [{A_0},{B_0},{C_0}]
+Terminals: [a,C,b,D]
+
+{A_0} -> a|{B_0}C
+{B_0} -> b|{C_0}D
+`
+	if g.String(true) != expectedGrammar {
+		t.Errorf("Expected %q,\n but got %q", expectedGrammar, g.String(true))
 	}
 
-	// Add a duplicate production
-	g.AddProduction("A -> a|{B}C")
-	expectedGrammar = "{A_0} -> a|{B_0}C\n{B_0} -> b|{C_0}D\n"
-	if g.String() != expectedGrammar {
-		t.Errorf("Expected %q, but got %q after adding duplicate production", expectedGrammar, g.String())
+	// fmt.Println(g.String(true))
+}
+
+func TestAddDuplicateProduction(t *testing.T) {
+
+	// Create a new Grammar instance
+	g := Grammar{
+		productions: make(map[Symbol][][]Symbol),
 	}
 
-	// Add another production with new symbols
-	g.AddProduction("C -> c")
-	expectedGrammar = "{A_0} -> a|{B_0}C\n{B_0} -> b|{C_0}D\n{C_0} -> c\n"
-	if g.String() != expectedGrammar {
-		t.Errorf("Expected %q, but got %q after adding new production", expectedGrammar, g.String())
+	// Add some productions
+	g.AddProduction("A -> a|{B}C|{B}C")
+	g.AddProduction("B -> b|{C}D")
+	g.AddProduction("B -> {C}D")
+
+	expectedGrammar := `NonTerminals: [{A_0},{B_0},{C_0}]
+Terminals: [a,C,b,D]
+
+{A_0} -> a|{B_0}C
+{B_0} -> b|{C_0}D
+`
+	if g.String(true) != expectedGrammar {
+		t.Errorf("Expected %q\n, but got %q", expectedGrammar, g.String(true))
 	}
 
-	// Check terminals and non-terminals
-	if len(g.terminals) != 2 { // "a" and "b" from the first two productions
-		t.Errorf("Expected 2 terminals, but got %d", len(g.terminals))
+	// fmt.Println(g.String(true))
+
+}
+func TestAddNonTerminalOnBody(t *testing.T) {
+
+	// Create a new Grammar instance
+	g := Grammar{
+		productions: make(map[Symbol][][]Symbol),
 	}
-	if len(g.nonTerminals) != 3 { // A, B, C
-		t.Errorf("Expected 3 non-terminals, but got %d", len(g.nonTerminals))
+
+	// Add some productions
+	g.AddProduction("A -> a|{B}C|{B}C")
+	g.AddProduction("B -> b|{C}D")
+	g.AddProduction("B -> {M}")
+
+	expectedGrammar := `NonTerminals: [{A_0},{B_0},{C_0},{M_0}]
+Terminals: [a,C,b,D]
+
+{A_0} -> a|{B_0}C
+{B_0} -> b|{C_0}D|{M_0}
+`
+	if g.String(true) != expectedGrammar {
+		t.Errorf("Expected %q\n, but got %q", expectedGrammar, g.String(true))
 	}
+
+	// fmt.Println(g.String(true))
+
 }
 
 func TestRemoveDuplicates(t *testing.T) {

@@ -27,9 +27,12 @@ type Grammar struct {
 }
 
 // returns: a readable representation of the grammar.
-func (g *Grammar) String() string {
+func (g *Grammar) String(verbose bool) string {
 	var sb strings.Builder
-	sb.WriteString("\n")
+	if verbose {
+		sb.WriteString(fmt.Sprintf("NonTerminals: %v\n", getSymbolSliceString(&g.nonTerminals)))
+		sb.WriteString(fmt.Sprintf("Terminals: %v\n\n", getSymbolSliceString(&g.terminals)))
+	}
 
 	for head, bodies := range g.productions {
 		sb.WriteString(head.String())
@@ -38,13 +41,26 @@ func (g *Grammar) String() string {
 			for _, symbol := range body {
 				sb.WriteString(symbol.String())
 			}
-			if index < len(body)-1 {
+			if index != len(bodies)-1 {
 				sb.WriteString("|")
 			}
 		}
 		sb.WriteString("\n")
 	}
 
+	return sb.String()
+}
+
+func getSymbolSliceString(slice *[]Symbol) string {
+	var sb strings.Builder
+	sb.WriteString("[")
+	for index, symbol := range *slice {
+		sb.WriteString(symbol.String())
+		if index != len(*slice)-1 {
+			sb.WriteString(",")
+		}
+	}
+	sb.WriteString("]")
 	return sb.String()
 }
 
