@@ -107,7 +107,7 @@ func TestRemoveNonGeneratingSymbols(t *testing.T) {
 // Test para la función RemoveNonReachableSymbols
 func TestRemoveNonReachableSymbols(t *testing.T) {
 	// Ejecutar la función para eliminar los símbolos no alcanzables
-	result := RemoveNonReachableSymbols(grammarTestUselessSymbolElimination)
+	result := RemoveNonReachableSymbols(grammarTestUselessSymbolElimination, S1)
 
 	// Comparar la gramática resultante con la esperada
 	if !compareGrammars(result, expectedRemoveReachableSymbols) {

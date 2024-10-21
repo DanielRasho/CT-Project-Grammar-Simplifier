@@ -181,13 +181,7 @@ func RemoveNonGeneratingSymbols(originalGrammar *Grammar) *Grammar {
 }
 
 // Función que elimina los símbolos no alcanzables de la gramática y retorna una nueva gramática.
-func RemoveNonReachableSymbols(originalGrammar *Grammar) *Grammar {
-	// Inicializar la variable startSymbol (el primer símbolo de las producciones)
-	var startSymbol Symbol
-	for symbol := range originalGrammar.Productions {
-		startSymbol = symbol
-		break
-	}
+func RemoveNonReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) *Grammar {
 
 	// Obtener los símbolos no alcanzables
 	_, unreachableSymbols := findReachableSymbols(originalGrammar, startSymbol)
@@ -234,8 +228,23 @@ func RemoveNonReachableSymbols(originalGrammar *Grammar) *Grammar {
 	return newGrammar
 }
 
+/*
+Función que elimina los símbolos inútiles (no generadores y no alcanzables)
+*/
 func RemoveUselessSymbols(originalGrammar *Grammar) *Grammar {
+	// Asegurar que el símbolo inicial sea el primer no terminal en la lista nonTerminals
+	if len(originalGrammar.nonTerminals) == 0 {
+		return originalGrammar
+	}
+
+	startSymbol := originalGrammar.nonTerminals[0]
+
+	// Primero eliminamos los símbolos no generadores
 	grammarWithoutGeneratingSymbols := RemoveNonGeneratingSymbols(originalGrammar)
-	grammarWithoutReachableSymbos := RemoveNonReachableSymbols(grammarWithoutGeneratingSymbols)
-	return grammarWithoutReachableSymbos
+
+	// Luego eliminamos los símbolos no alcanzables, pasando el símbolo inicial
+	grammarWithoutReachableSymbols := RemoveNonReachableSymbols(grammarWithoutGeneratingSymbols, startSymbol)
+
+	// Retornar la gramática sin símbolos inútiles
+	return grammarWithoutReachableSymbols
 }

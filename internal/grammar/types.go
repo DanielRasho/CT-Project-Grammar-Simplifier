@@ -2,6 +2,7 @@ package grammar
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -406,11 +407,19 @@ func compareGrammars(g1, g2 *Grammar) bool {
 	return true
 }
 
-// Función auxiliar para comparar dos slices de símbolos
+// Función auxiliar para comparar dos slices de símbolos (sin importar el orden)
 func compareSymbolSlices(s1, s2 []Symbol) bool {
 	if len(s1) != len(s2) {
 		return false
 	}
+
+	// Ordenar ambos slices antes de compararlos
+	sort.Slice(s1, func(i, j int) bool {
+		return s1[i].String() < s1[j].String()
+	})
+	sort.Slice(s2, func(i, j int) bool {
+		return s2[i].String() < s2[j].String()
+	})
 
 	for i := range s1 {
 		if s1[i] != s2[i] {
@@ -421,11 +430,19 @@ func compareSymbolSlices(s1, s2 []Symbol) bool {
 	return true
 }
 
-// Función auxiliar para comparar dos slices de producciones
+// Función auxiliar para comparar dos slices de producciones (sin importar el orden)
 func compareProductionSlices(p1, p2 [][]Symbol) bool {
 	if len(p1) != len(p2) {
 		return false
 	}
+
+	// Ordenar ambas listas de producciones por su representación de cadena
+	sort.Slice(p1, func(i, j int) bool {
+		return productionString(p1[i]) < productionString(p1[j])
+	})
+	sort.Slice(p2, func(i, j int) bool {
+		return productionString(p2[i]) < productionString(p2[j])
+	})
 
 	for i := range p1 {
 		if !compareSymbolSlices(p1[i], p2[i]) {
@@ -434,4 +451,13 @@ func compareProductionSlices(p1, p2 [][]Symbol) bool {
 	}
 
 	return true
+}
+
+// Función auxiliar para convertir una producción en cadena para facilitar la comparación
+func productionString(p []Symbol) string {
+	result := ""
+	for _, symbol := range p {
+		result += symbol.String()
+	}
+	return result
 }
