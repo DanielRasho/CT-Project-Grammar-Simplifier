@@ -8,9 +8,9 @@ import (
 // Helper function to create a Symbol easily
 func createSymbol(value string, isTerminal bool, id int) Symbol {
 	return Symbol{
-		isTerminal: isTerminal,
-		value:      value,
-		id:         id,
+		IsTerminal: isTerminal,
+		Value:      value,
+		Id:         id,
 	}
 }
 

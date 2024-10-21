@@ -15,7 +15,7 @@ func CNFTerminalSubstitution(originalGrammar *Grammar) *Grammar {
 	terminalToNonTerminal := make(map[Symbol]Symbol)
 	for _, terminal := range originalGrammar.terminals {
 		// Crear un nuevo símbolo no terminal que reemplazará al terminal
-		newNonTerminal := Symbol{isTerminal: false, value: terminal.value, id: terminal.id + 1}
+		newNonTerminal := Symbol{IsTerminal: false, Value: terminal.Value, Id: terminal.Id + 1}
 		terminalToNonTerminal[terminal] = newNonTerminal
 
 		// Añadir el nuevo no terminal a la lista de no terminales
@@ -89,9 +89,9 @@ func CNFSplitLargeProductions(originalGrammar *Grammar) *Grammar {
 
 				// Crear un nuevo símbolo no terminal que represente a estos dos símbolos
 				newSymbol := Symbol{
-					isTerminal: false,
-					value:      lastSymbol2.value + "_" + lastSymbol1.value, // Nombre combinado de los símbolos
-					id:         0,                                           // id 0 porque son nuevas producciones que no derivan de nada
+					IsTerminal: false,
+					Value:      lastSymbol2.Value + "_" + lastSymbol1.Value, // Nombre combinado de los símbolos
+					Id:         0,                                           // id 0 porque son nuevas producciones que no derivan de nada
 				}
 
 				// Añadir el nuevo no terminal a la lista de no terminales si no está presente

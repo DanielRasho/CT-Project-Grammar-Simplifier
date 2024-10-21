@@ -3,11 +3,11 @@ package grammar
 import "testing"
 
 // Simbolos para la gramática
-var S1 = Symbol{isTerminal: false, value: "S", id: 1}
-var A1 = Symbol{isTerminal: false, value: "A", id: 1}
-var B1 = Symbol{isTerminal: false, value: "B", id: 1}
-var a1 = Symbol{isTerminal: true, value: "a", id: -1}
-var b1 = Symbol{isTerminal: true, value: "b", id: -1}
+var S1 = Symbol{IsTerminal: false, Value: "S", Id: 1}
+var A1 = Symbol{IsTerminal: false, Value: "A", Id: 1}
+var B1 = Symbol{IsTerminal: false, Value: "B", Id: 1}
+var a1 = Symbol{IsTerminal: true, Value: "a", Id: -1}
+var b1 = Symbol{IsTerminal: true, Value: "b", Id: -1}
 
 // Grammar Test
 var grammarTestUselessSymbolElimination = &Grammar{

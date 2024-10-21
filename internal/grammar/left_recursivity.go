@@ -16,7 +16,10 @@ func removeLeftRecursivity(originalGrammar *Grammar) *Grammar {
 	// copy(newGrammar.nonTerminals, originalGrammar.nonTerminals)
 	copy(newGrammar.terminals, originalGrammar.terminals)
 
-	for head := range originalGrammar.Productions {
+	for _, head := range originalGrammar.NonTerminals {
+		if _, exist := originalGrammar.Productions[head]; !exist {
+			continue
+		}
 
 		fmt.Println(newGrammar.String(true))
 
@@ -37,7 +40,7 @@ func removeLeftRecursivity(originalGrammar *Grammar) *Grammar {
 
 		// If recursive bodies were not found,
 		if len(recursiveBodies) == 0 {
-			newGrammar.AddProduction(head.value, AllBodyVariants) // A
+			newGrammar.AddProduction(head.Value, AllBodyVariants) // A
 			continue
 		}
 		// If nonRecursiveBodies is empty, add epsilon
@@ -51,8 +54,8 @@ func removeLeftRecursivity(originalGrammar *Grammar) *Grammar {
 
 		// FIX RECURSION
 		// Create the productions
-		production1 := newGrammar.AddProduction(head.value, make([][]Symbol, 0)) // A
-		production2 := newGrammar.AddProduction(head.value, make([][]Symbol, 0)) // A'
+		production1 := newGrammar.AddProduction(head.Value, make([][]Symbol, 0)) // A
+		production2 := newGrammar.AddProduction(head.Value, make([][]Symbol, 0)) // A'
 
 		// Modify bodies to remove recursion
 		var wg sync.WaitGroup
@@ -103,7 +106,7 @@ func findAllBodyVariants(head *Symbol, grammar *Grammar) [][]Symbol {
 	explore = func(searchSymbol *Symbol) [][]Symbol {
 		var variants [][]Symbol
 
-		if searchSymbol.isTerminal {
+		if searchSymbol.IsTerminal {
 			return nil
 		}
 		if _, isVisited := visited[*searchSymbol]; isVisited {

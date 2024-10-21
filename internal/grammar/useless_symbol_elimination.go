@@ -161,7 +161,7 @@ func RemoveNonGeneratingSymbols(originalGrammar *Grammar) *Grammar {
 	for _, productions := range newGrammar.Productions {
 		for _, production := range productions {
 			for _, symbol := range production {
-				if symbol.isTerminal {
+				if symbol.IsTerminal {
 					// Añadir a la lista de terminales si no está ya presente
 					if !containsSymbol(newGrammar.terminals, symbol) {
 						newGrammar.terminals = append(newGrammar.terminals, symbol)
@@ -209,7 +209,7 @@ func RemoveNonReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) *Gr
 	for _, productions := range newGrammar.Productions {
 		for _, production := range productions {
 			for _, symbol := range production {
-				if symbol.isTerminal {
+				if symbol.IsTerminal {
 					// Añadir a la lista de terminales si no está ya presente
 					if !containsSymbol(newGrammar.terminals, symbol) {
 						newGrammar.terminals = append(newGrammar.terminals, symbol)

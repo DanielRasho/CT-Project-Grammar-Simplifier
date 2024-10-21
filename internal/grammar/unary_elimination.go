@@ -134,7 +134,7 @@ func isUnary(production []Symbol, nonTerminals []Symbol) bool {
 	symbol := production[0]
 
 	// Verificar si el símbolo es un no terminal
-	if !symbol.isTerminal && containsSymbol(nonTerminals, symbol) {
+	if !symbol.IsTerminal && containsSymbol(nonTerminals, symbol) {
 		return true
 	}
 

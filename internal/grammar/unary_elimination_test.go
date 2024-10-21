@@ -5,13 +5,13 @@ import (
 )
 
 // Simbolos para la gramática
-var A = Symbol{isTerminal: false, value: "A", id: 1}
-var B = Symbol{isTerminal: false, value: "B", id: 1}
-var C = Symbol{isTerminal: false, value: "C", id: 1}
-var D = Symbol{isTerminal: false, value: "D", id: 1}
-var E = Symbol{isTerminal: false, value: "E", id: 1}
-var abc = Symbol{isTerminal: true, value: "abc", id: -1}
-var fgh = Symbol{isTerminal: true, value: "fgh", id: -1}
+var A = Symbol{IsTerminal: false, Value: "A", Id: 1}
+var B = Symbol{IsTerminal: false, Value: "B", Id: 1}
+var C = Symbol{IsTerminal: false, Value: "C", Id: 1}
+var D = Symbol{IsTerminal: false, Value: "D", Id: 1}
+var E = Symbol{IsTerminal: false, Value: "E", Id: 1}
+var abc = Symbol{IsTerminal: true, Value: "abc", Id: -1}
+var fgh = Symbol{IsTerminal: true, Value: "fgh", Id: -1}
 
 // Grammar Test
 var grammarTestUnaryElimination = &Grammar{

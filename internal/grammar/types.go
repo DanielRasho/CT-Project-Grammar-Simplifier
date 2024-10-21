@@ -9,22 +9,22 @@ import (
 const Epsilon = "ε"
 
 var EpsilonSymbol Symbol = Symbol{
-	isTerminal: true,
-	value:      "ε",
-	id:         0,
+	IsTerminal: true,
+	Value:      "ε",
+	Id:         0,
 }
 
 type Symbol struct {
-	isTerminal bool
-	value      string
-	id         int
+	IsTerminal bool
+	Value      string
+	Id         int
 }
 
 func (s *Symbol) String() string {
-	if s.isTerminal {
-		return s.value
+	if s.IsTerminal {
+		return s.Value
 	}
-	return fmt.Sprintf("{%s_%d}", s.value, s.id)
+	return fmt.Sprintf("{%s_%d}", s.Value, s.Id)
 }
 
 type Grammar struct {
@@ -81,7 +81,7 @@ func (g *Grammar) AddProductionFromString(production string) {
 	division1 := strings.Index(production, " ")                               // Find first space index
 	division2 := division1 + 1 + strings.Index(production[division1+1:], " ") // Find second space index
 
-	head := Symbol{value: production[:division1], isTerminal: false, id: 0}
+	head := Symbol{Value: production[:division1], IsTerminal: false, Id: 0}
 	body := production[division2+1:]
 	bodyItems := strings.Split(body, "|")
 
@@ -121,16 +121,16 @@ func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 	// Find the highest ID for the given head value in nonTerminals
 	newID := 0
 	for _, nonTerminal := range g.NonTerminals {
-		if nonTerminal.value == head {
-			newID = nonTerminal.id + 1 // Increment the ID to be unique
+		if nonTerminal.Value == head {
+			newID = nonTerminal.Id + 1 // Increment the ID to be unique
 		}
 	}
 
 	// Create a new Symbol for the head with the next available ID
 	newHead := Symbol{
-		isTerminal: false,
-		value:      head,
-		id:         newID,
+		IsTerminal: false,
+		Value:      head,
+		Id:         newID,
 	}
 
 	// Add the new production to the productions map
@@ -143,7 +143,7 @@ func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 	// Add new symbols from the body to Terminals list.
 	for _, body := range bodies {
 		for _, symbol := range body {
-			if symbol.isTerminal {
+			if symbol.IsTerminal {
 				g.terminals = append(g.terminals, symbol)
 			}
 		}
@@ -170,7 +170,7 @@ func (g *Grammar) AddProductionBodies(head Symbol, bodies [][]Symbol) *Symbol {
 	// Add new symbols from the body to Terminals list.
 	for _, body := range bodies {
 		for _, symbol := range body {
-			if symbol.isTerminal {
+			if symbol.IsTerminal {
 				g.terminals = append(g.terminals, symbol)
 			}
 		}
@@ -198,7 +198,7 @@ func (g *Grammar) RecalculateTerminals() {
 	for _, bodies := range g.Productions {
 		for _, body := range bodies {
 			for _, symbol := range body {
-				if symbol.isTerminal {
+				if symbol.IsTerminal {
 					g.terminals = append(g.terminals, symbol)
 				}
 			}
@@ -286,7 +286,7 @@ func splitStringIntoSymbols(input string) (body []Symbol, nonTerminals []Symbol,
 		case '}':
 			if inBraces {
 				// Add non-terminal symbol to body and nonTerminals slice
-				nonTerminalSymbol := Symbol{value: current.String(), isTerminal: false, id: 0}
+				nonTerminalSymbol := Symbol{Value: current.String(), IsTerminal: false, Id: 0}
 				body = append(body, nonTerminalSymbol)
 				nonTerminals = append(nonTerminals, nonTerminalSymbol)
 				current.Reset()
@@ -296,7 +296,7 @@ func splitStringIntoSymbols(input string) (body []Symbol, nonTerminals []Symbol,
 		default:
 			current.WriteRune(char) // Build the current symbol
 			if !inBraces {
-				terminalSymbol := Symbol{value: current.String(), isTerminal: true, id: 0}
+				terminalSymbol := Symbol{Value: current.String(), IsTerminal: true, Id: 0}
 				body = append(body, terminalSymbol)
 				terminals = append(terminals, terminalSymbol)
 				current.Reset()
@@ -306,7 +306,7 @@ func splitStringIntoSymbols(input string) (body []Symbol, nonTerminals []Symbol,
 
 	// Add any remaining non-braced symbol as terminal
 	if current.Len() > 0 {
-		terminalSymbol := Symbol{value: current.String(), isTerminal: true, id: 0}
+		terminalSymbol := Symbol{Value: current.String(), IsTerminal: true, Id: 0}
 		body = append(body, terminalSymbol)
 		terminals = append(terminals, terminalSymbol)
 	}
@@ -519,9 +519,9 @@ func FindHeadsProducingTerminal(grammar *Grammar, terminalValue string) []string
 		if bodies, exists := grammar.Productions[nonTerminal]; exists {
 			for _, body := range bodies {
 				// Verificar si la producción tiene exactamente un símbolo y es un terminal
-				if len(body) == 1 && body[0].isTerminal && body[0].value == terminalValue {
+				if len(body) == 1 && body[0].IsTerminal && body[0].Value == terminalValue {
 					// Añadir el value del head (nonTerminal) a la lista si produce directamente el terminal
-					heads = append(heads, nonTerminal.value)
+					heads = append(heads, nonTerminal.Value)
 				}
 			}
 		}
@@ -540,11 +540,11 @@ func FindHeadsProducingNonTerminals(grammar *Grammar, nonTerminal1, nonTerminal2
 		if bodies, exists := grammar.Productions[nonTerminal]; exists {
 			for _, body := range bodies {
 				// Verificar si la producción tiene exactamente dos no terminales
-				if len(body) == 2 && !body[0].isTerminal && !body[1].isTerminal {
+				if len(body) == 2 && !body[0].IsTerminal && !body[1].IsTerminal {
 					// Comparar los no terminales de la producción con los proporcionados
 					if body[0] == nonTerminal1 && body[1] == nonTerminal2 {
 						// Añadir el value del head (nonTerminal) a la lista si produce el par de no terminales
-						heads = append(heads, nonTerminal.value)
+						heads = append(heads, nonTerminal.Value)
 					}
 				}
 			}

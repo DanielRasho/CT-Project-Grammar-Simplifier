@@ -3,17 +3,17 @@ package grammar
 import "testing"
 
 // Simbolos para la gramática
-var S2 = Symbol{isTerminal: false, value: "S", id: 1}
-var A2 = Symbol{isTerminal: false, value: "A", id: 1}
-var B2 = Symbol{isTerminal: false, value: "B", id: 1}
-var a2 = Symbol{isTerminal: true, value: "a", id: -1}
-var b2 = Symbol{isTerminal: true, value: "b", id: -1}
+var S2 = Symbol{IsTerminal: false, Value: "S", Id: 1}
+var A2 = Symbol{IsTerminal: false, Value: "A", Id: 1}
+var B2 = Symbol{IsTerminal: false, Value: "B", Id: 1}
+var a2 = Symbol{IsTerminal: true, Value: "a", Id: -1}
+var b2 = Symbol{IsTerminal: true, Value: "b", Id: -1}
 
 // Nuevos Simbolos creados
-var a_20 = Symbol{isTerminal: false, value: "a", id: 0}
-var b_20 = Symbol{isTerminal: false, value: "b", id: 0}
-var a_21 = Symbol{isTerminal: false, value: "A_a", id: 0}
-var b_21 = Symbol{isTerminal: false, value: "B_b", id: 0}
+var a_20 = Symbol{IsTerminal: false, Value: "a", Id: 0}
+var b_20 = Symbol{IsTerminal: false, Value: "b", Id: 0}
+var a_21 = Symbol{IsTerminal: false, Value: "A_a", Id: 0}
+var b_21 = Symbol{IsTerminal: false, Value: "B_b", Id: 0}
 
 // Grammar Test
 var grammarTestCNFConversion = &Grammar{

@@ -26,7 +26,7 @@ func CYKParse(grammar *Grammar, cadena string, initialSymbol Symbol) bool {
 				for _, v1 := range values1 {
 					for _, v2 := range values2 {
 						// Llamar a FindHeadsProducingNonTerminals para el par de valores (v1, v2)
-						listado = append(listado, FindHeadsProducingNonTerminals(grammar, Symbol{value: v1, isTerminal: false}, Symbol{value: v2, isTerminal: false})...)
+						listado = append(listado, FindHeadsProducingNonTerminals(grammar, Symbol{Value: v1, IsTerminal: false}, Symbol{Value: v2, IsTerminal: false})...)
 					}
 				}
 
@@ -45,7 +45,7 @@ func CYKParse(grammar *Grammar, cadena string, initialSymbol Symbol) bool {
 					for _, v1 := range values1 {
 						for _, v2 := range values2 {
 							// Llamar a FindHeadsProducingNonTerminals para el par de valores (v1, v2)
-							listado = append(listado, FindHeadsProducingNonTerminals(grammar, Symbol{value: v1, isTerminal: false}, Symbol{value: v2, isTerminal: false})...)
+							listado = append(listado, FindHeadsProducingNonTerminals(grammar, Symbol{Value: v1, IsTerminal: false}, Symbol{Value: v2, IsTerminal: false})...)
 						}
 					}
 				}
@@ -73,7 +73,7 @@ func CYKParse(grammar *Grammar, cadena string, initialSymbol Symbol) bool {
 
 	// Si el símbolo inicial está en la última celda, entonces la cadena es aceptada
 	for _, head := range lastCell {
-		if head == initialSymbol.value {
+		if head == initialSymbol.Value {
 			return true
 		}
 	}

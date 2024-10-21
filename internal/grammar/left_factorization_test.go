@@ -10,27 +10,27 @@ func TestFindLongestPrefix(t *testing.T) {
 
 	bodies := [][]Symbol{
 		{
-			Symbol{value: "a", isTerminal: true},
-			Symbol{value: "b", isTerminal: true},
-			Symbol{value: "M", isTerminal: false, id: 0},
+			Symbol{Value: "a", IsTerminal: true},
+			Symbol{Value: "b", IsTerminal: true},
+			Symbol{Value: "M", IsTerminal: false, Id: 0},
 		},
 		{
-			Symbol{value: "a", isTerminal: true},
-			Symbol{value: "b", isTerminal: true},
-			Symbol{value: "M", isTerminal: false, id: 0},
+			Symbol{Value: "a", IsTerminal: true},
+			Symbol{Value: "b", IsTerminal: true},
+			Symbol{Value: "M", IsTerminal: false, Id: 0},
 		},
 		{
-			Symbol{value: "j", isTerminal: true},
-			Symbol{value: "K", isTerminal: false, id: 0},
+			Symbol{Value: "j", IsTerminal: true},
+			Symbol{Value: "K", IsTerminal: false, Id: 0},
 		},
 		{
-			Symbol{value: "a", isTerminal: true},
-			Symbol{value: "b", isTerminal: true},
-			Symbol{value: "b", isTerminal: true},
+			Symbol{Value: "a", IsTerminal: true},
+			Symbol{Value: "b", IsTerminal: true},
+			Symbol{Value: "b", IsTerminal: true},
 		},
 		{
-			Symbol{value: "j", isTerminal: true},
-			Symbol{value: "l", isTerminal: true},
+			Symbol{Value: "j", IsTerminal: true},
+			Symbol{Value: "l", IsTerminal: true},
 		},
 	}
 
@@ -50,13 +50,13 @@ func TestFindLongestPrefixNothingInCommon(t *testing.T) {
 
 	bodies := [][]Symbol{
 		{
-			Symbol{value: "a", isTerminal: true},
+			Symbol{Value: "a", IsTerminal: true},
 		},
 		{
-			Symbol{value: "b", isTerminal: true},
+			Symbol{Value: "b", IsTerminal: true},
 		},
 		{
-			Symbol{value: "c", isTerminal: true},
+			Symbol{Value: "c", IsTerminal: true},
 		},
 	}
 
@@ -81,7 +81,7 @@ func TestApplyFactorization(t *testing.T) {
 		Productions: make(map[Symbol][][]Symbol),
 	}
 	grammar.AddProductionFromString("A -> {B}x|jk|{B}b|jl")
-	A := Symbol{value: "A", isTerminal: false, id: 0}
+	A := Symbol{Value: "A", IsTerminal: false, Id: 0}
 
 	result := leftFactor(grammar, &A, grammar.Productions[A])
 
@@ -99,7 +99,7 @@ func TestApplyFactorization2(t *testing.T) {
 		Productions: make(map[Symbol][][]Symbol),
 	}
 	grammar.AddProductionFromString("A -> {B}x|{B}")
-	A := Symbol{value: "A", isTerminal: false, id: 0}
+	A := Symbol{Value: "A", IsTerminal: false, Id: 0}
 
 	result := leftFactor(grammar, &A, grammar.Productions[A])
 

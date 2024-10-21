@@ -35,7 +35,7 @@ func leftFactor(grammar *Grammar, head *Symbol, bodies [][]Symbol) [][]Symbol {
 	newBodies := make([][]Symbol, 0)
 
 	// Step 2: Create a new non-terminal for the factored suffixes
-	newNonTerminal := grammar.AddProduction(head.value, [][]Symbol{})
+	newNonTerminal := grammar.AddProduction(head.Value, [][]Symbol{})
 	newNonTerminalBodies := leftFactor(grammar, newNonTerminal, prefixBodies)
 	grammar.SetProductionBodies(*newNonTerminal, newNonTerminalBodies)
 

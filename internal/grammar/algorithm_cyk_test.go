@@ -3,12 +3,12 @@ package grammar
 import "testing"
 
 // Definir los símbolos
-var SCYK = Symbol{isTerminal: false, value: "S", id: 0}
-var ACYK = Symbol{isTerminal: false, value: "A", id: 0}
-var BCYK = Symbol{isTerminal: false, value: "B", id: 0}
-var CCYK = Symbol{isTerminal: false, value: "C", id: 0}
-var aCYK = Symbol{isTerminal: true, value: "a", id: -1}
-var bCYK = Symbol{isTerminal: true, value: "b", id: -1}
+var SCYK = Symbol{IsTerminal: false, Value: "S", Id: 0}
+var ACYK = Symbol{IsTerminal: false, Value: "A", Id: 0}
+var BCYK = Symbol{IsTerminal: false, Value: "B", Id: 0}
+var CCYK = Symbol{IsTerminal: false, Value: "C", Id: 0}
+var aCYK = Symbol{IsTerminal: true, Value: "a", Id: -1}
+var bCYK = Symbol{IsTerminal: true, Value: "b", Id: -1}
 
 // Definir la gramática
 var testGrammar = &Grammar{

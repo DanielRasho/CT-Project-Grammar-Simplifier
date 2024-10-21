@@ -15,14 +15,15 @@ import (
 // REGEX DEFINITIONS
 const LETTERS string = "[abcdefghijklmnopqrstuvwxyz]"
 const CAPITAL_LETTERS string = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
+const OPERATORS string = "[\\+\\*\\(\\)]"
 const DIGITS string = "[0123456789]"
 const NON_TERMINALS string = "\\{([ABCDEFGHIJKLMNOPQRSTUVWXYZ])+\\}"
 
 // PRODUCTIONS_REGEX for matching grammar productions
-var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|%s|ε)+\\|)*(%s|%s|%s|%s|ε)+",
+var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|%s|%s|ε)+\\|)*(%s|%s|%s|%s|%s|ε)+",
 	CAPITAL_LETTERS,
-	NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS,
-	NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS)
+	OPERATORS, NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS,
+	OPERATORS, NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS)
 
 func main() {
 	filepath := "./input_data/grammars.txt"
@@ -80,11 +81,12 @@ func main() {
 
 	// Simplify Grammar
 	newGrammar := grammar.SimplifyGrammar(&currentGrammar, true)
-	startSymbol := newGrammar.NonTerminals[0]
+	startSymbol := grammar.Symbol{Value: "E", Id: 0, IsTerminal: false}
+	fmt.Println(newGrammar.Productions[startSymbol])
 
 	// Get User Input
 	var input string
-	fmt.Print("Ingresar valor para verificar: ")
+	fmt.Print("🔰Ingresar valor para verificar: ")
 	fmt.Scanln(&input)
 
 	accepted := grammar.CYKParse(newGrammar, input, startSymbol)

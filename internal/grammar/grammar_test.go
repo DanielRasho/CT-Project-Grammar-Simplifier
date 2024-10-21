@@ -91,7 +91,7 @@ func TestAddProduction(t *testing.T) {
 
 	// Test 1: Add a production for head "A" with terminal body
 	bodies1 := [][]Symbol{
-		{{isTerminal: true, value: "a", id: 0}},
+		{{IsTerminal: true, Value: "a", Id: 0}},
 	}
 	head1 := g.AddProduction("A", bodies1)
 
@@ -110,10 +110,10 @@ func TestAddProductionSymbol(t *testing.T) {
 
 	// Test 1: Add a production for head "A" with terminal body
 	bodies1 := [][]Symbol{
-		{{isTerminal: true, value: "j", id: 0}},
-		{{isTerminal: true, value: "b", id: 0}},
+		{{IsTerminal: true, Value: "j", Id: 0}},
+		{{IsTerminal: true, Value: "b", Id: 0}},
 	}
-	head1 := Symbol{value: "A", isTerminal: false}
+	head1 := Symbol{Value: "A", IsTerminal: false}
 
 	g.AddProductionBodies(head1, bodies1)
 
@@ -123,9 +123,9 @@ func TestAddProductionSymbol(t *testing.T) {
 
 func TestRemoveDuplicates(t *testing.T) {
 	slice := []Symbol{
-		{isTerminal: true, value: "a", id: 0},
-		{isTerminal: true, value: "a", id: 0},
-		{isTerminal: false, value: "B", id: 0},
+		{IsTerminal: true, Value: "a", Id: 0},
+		{IsTerminal: true, Value: "a", Id: 0},
+		{IsTerminal: false, Value: "B", Id: 0},
 	}
 
 	uniqueSlice := removeDuplicatesSymbols(slice)
@@ -135,8 +135,8 @@ func TestRemoveDuplicates(t *testing.T) {
 	}
 
 	expected := []Symbol{
-		{isTerminal: true, value: "a", id: 0},
-		{isTerminal: false, value: "B", id: 0},
+		{IsTerminal: true, Value: "a", Id: 0},
+		{IsTerminal: false, Value: "B", Id: 0},
 	}
 
 	for i, sym := range expected {
