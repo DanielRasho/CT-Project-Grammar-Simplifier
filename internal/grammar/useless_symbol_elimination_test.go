@@ -1,166 +1,127 @@
 package grammar
 
-/*
-import (
-	"reflect"
-	"testing"
-)
+import "testing"
 
-// Datos de prueba
-var grammarTest1 = Grammar{
-	"1":   {"2 3"},
-	"2":   {"4 5", "a"},
-	"3":   {"b"},
-	"4":   {"c"},
-	"5":   {"6", "d"},
-	"6":   {"7"},
-	"7":   {"e"},
-	"100": {"f"},
+// Simbolos para la gramática
+var S1 = Symbol{isTerminal: false, value: "S", id: 1}
+var A1 = Symbol{isTerminal: false, value: "A", id: 1}
+var B1 = Symbol{isTerminal: false, value: "B", id: 1}
+var a1 = Symbol{isTerminal: true, value: "a", id: -1}
+var b1 = Symbol{isTerminal: true, value: "b", id: -1}
+
+// Grammar Test
+var grammarTestUselessSymbolElimination = &Grammar{
+	terminals:    []Symbol{a1, b1},
+	nonTerminals: []Symbol{S1, A1, B1},
+	productions: map[Symbol][][]Symbol{
+		S1: {{A1, B1}, {a1}},
+		A1: {{b1}},
+	},
 }
 
-var grammarTest2 = Grammar{
-	"!": {"@ #"},
-	"@": {"a"},
-	"#": {"b", "&"},
-	"&": {"c"},
-	"%": {"d"},
+// Resultado de eliminar simbolos no alcanzables
+var expectedRemoveReachableSymbols = &Grammar{
+	terminals:    []Symbol{a1, b1},
+	nonTerminals: []Symbol{S1, A1, B1},
+	productions: map[Symbol][][]Symbol{
+		S1: {{A1, B1}, {a1}},
+		A1: {{b1}},
+	},
 }
 
-var grammarTest3 = Grammar{
-	"Start":      {"Noun Verb Object"},
-	"Noun":       {"Dog", "Cat"},
-	"Verb":       {"chases", "eats"},
-	"Object":     {"Ball", "Food"},
-	"UnusedRule": {"Tree"},
+// Resultado de eliminar simbolos que no generan
+var expectedRemoveGeneratingSymbols = &Grammar{
+	terminals:    []Symbol{a1, b1},
+	nonTerminals: []Symbol{S1, A1},
+	productions: map[Symbol][][]Symbol{
+		S1: {{a1}},
+		A1: {{b1}},
+	},
 }
 
-var grammarTest4 = Grammar{
-	"S": {"A B"},
-	"A": {"a"},
-	"B": {"b"},
-	"C": {"c"},
+// Resultado esperado en de Grammar sin simbolos inutiles
+var expectedTestUselessSymbolElimination = &Grammar{
+	terminals:    []Symbol{a1},
+	nonTerminals: []Symbol{S1},
+	productions: map[Symbol][][]Symbol{
+		S1: {{a1}},
+	},
 }
 
-// Test para buscar simbolos generadores
+var expectedGeneratingSymbols1 = []Symbol{S1, A1}    // generan
+var expectedGeneratingSymbols2 = []Symbol{B1}        // no generan
+var expectedReachableSymbols1 = []Symbol{S1, A1, B1} // alcanzables
+var expectedReachableSymbols2 = []Symbol{}           // no alcanzables
+
+// Test para la función findGeneratingSymbols
 func TestFindGeneratingSymbols(t *testing.T) {
-	tests := []struct {
-		name           string
-		grammar        *Grammar
-		expectedGen    []string
-		expectedNonGen []string
-	}{
-		{
-			name:           "GRAMATICA1",
-			grammar:        &grammarTest1,
-			expectedGen:    []string{"1", "2", "3", "4", "5", "6", "7", "100"},
-			expectedNonGen: []string{},
-		},
-		{
-			name:           "GRAMATICA2",
-			grammar:        &grammarTest2,
-			expectedGen:    []string{"@", "#", "&", "%", "!"},
-			expectedNonGen: []string{},
-		},
-		{
-			name:           "GRAMATICA3",
-			grammar:        &grammarTest3,
-			expectedGen:    []string{"Start", "Noun", "Verb", "Object", "UnusedRule"},
-			expectedNonGen: []string{},
-		},
-		{
-			name:           "GRAMATICA4",
-			grammar:        &grammarTest4,
-			expectedGen:    []string{"S", "A", "B", "C"},
-			expectedNonGen: []string{},
-		},
+	// Ejecutar la función para encontrar los símbolos que generan cadenas de terminales
+	generatingSymbols, nonGeneratingSymbols := findGeneratingSymbols(grammarTestUselessSymbolElimination)
+
+	// Verificar que los símbolos generadores coincidan con los esperados
+	for _, expectedSymbol := range expectedGeneratingSymbols1 {
+		if !containsSymbol(generatingSymbols, expectedSymbol) {
+			t.Errorf("Error: El símbolo generador esperado %v no se encontró en los símbolos generadores: %v", expectedSymbol.String(), generatingSymbols)
+		}
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			generators, nonGenerators := findGeneratingSymbols(tt.grammar)
-
-			// Usamos la nueva función sameElements para comparar sin importar el orden.
-			if !sameElements(getKeys(generators), tt.expectedGen) {
-				t.Errorf("Símbolos generadores incorrectos para %s: got %v, want %v", tt.name, getKeys(generators), tt.expectedGen)
-			}
-			if !sameElements(getKeys(nonGenerators), tt.expectedNonGen) {
-				t.Errorf("Símbolos no generadores incorrectos para %s: got %v, want %v", tt.name, getKeys(nonGenerators), tt.expectedNonGen)
-			}
-		})
+	// Verificar que los símbolos no generadores coincidan con los esperados
+	for _, expectedSymbol := range expectedGeneratingSymbols2 {
+		if !containsSymbol(nonGeneratingSymbols, expectedSymbol) {
+			t.Errorf("Error: El símbolo no generador esperado %v no se encontró en los símbolos no generadores: %v", expectedSymbol.String(), nonGeneratingSymbols)
+		}
 	}
 }
 
-// Test para buscar simbolos alcanzables
+// Test para la función findReachableSymbols
 func TestFindReachableSymbols(t *testing.T) {
-	tests := []struct {
-		name             string
-		grammar          *Grammar
-		startSymbol      string
-		expectedReach    []string
-		expectedNonReach []string
-	}{
-		{
-			name:             "GRAMATICA1",
-			grammar:          &grammarTest1,
-			startSymbol:      "1",
-			expectedReach:    []string{"1", "2", "3", "4", "5", "6", "7"},
-			expectedNonReach: []string{"100"},
-		},
-		{
-			name:             "GRAMATICA2",
-			grammar:          &grammarTest2,
-			startSymbol:      "!",
-			expectedReach:    []string{"!", "@", "#", "&"},
-			expectedNonReach: []string{"%"},
-		},
-		{
-			name:             "GRAMATICA3",
-			grammar:          &grammarTest3,
-			startSymbol:      "Start",
-			expectedReach:    []string{"Start", "Noun", "Verb", "Object"},
-			expectedNonReach: []string{"UnusedRule"},
-		},
-		{
-			name:             "GRAMATICA4",
-			grammar:          &grammarTest4,
-			startSymbol:      "S",
-			expectedReach:    []string{"S", "A", "B"},
-			expectedNonReach: []string{"C"},
-		},
+	// Ejecutar la función para encontrar los símbolos alcanzables a partir del símbolo inicial S1
+	reachableSymbols, unreachableSymbols := findReachableSymbols(grammarTestUselessSymbolElimination, S1)
+
+	// Verificar que los símbolos alcanzables coincidan con los esperados
+	for _, expectedSymbol := range expectedReachableSymbols1 {
+		if !containsSymbol(reachableSymbols, expectedSymbol) {
+			t.Errorf("Error: El símbolo alcanzable esperado %v no se encontró en los símbolos alcanzables: %v", expectedSymbol.String(), reachableSymbols)
+		}
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			reachable, nonReachable := findReachableSymbols(tt.grammar, tt.startSymbol)
-
-			// Usamos la función sameElements para comparar sin importar el orden.
-			if !sameElements(getKeys(reachable), tt.expectedReach) {
-				t.Errorf("Símbolos alcanzables incorrectos para %s: got %v, want %v", tt.name, getKeys(reachable), tt.expectedReach)
-			}
-			if !sameElements(getKeys(nonReachable), tt.expectedNonReach) {
-				t.Errorf("Símbolos no alcanzables incorrectos para %s: got %v, want %v", tt.name, getKeys(nonReachable), tt.expectedNonReach)
-			}
-		})
+	// Verificar que los símbolos no alcanzables coincidan con los esperados
+	for _, expectedSymbol := range expectedReachableSymbols2 {
+		if !containsSymbol(unreachableSymbols, expectedSymbol) {
+			t.Errorf("Error: El símbolo no alcanzable esperado %v no se encontró en los símbolos no alcanzables: %v", expectedSymbol.String(), unreachableSymbols)
+		}
 	}
 }
 
-// Función auxiliar para comparar dos slices ignorando el orden.
-func sameElements(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
+// Test para la función RemoveNonGeneratingSymbols
+func TestRemoveNonGeneratingSymbols(t *testing.T) {
+	// Ejecutar la función para eliminar los símbolos no generadores
+	result := RemoveNonGeneratingSymbols(grammarTestUselessSymbolElimination)
 
-	// Convertimos ambos slices en mapas para comparar sus contenidos sin importar el orden.
-	mapA := make(map[string]struct{}, len(a))
-	mapB := make(map[string]struct{}, len(b))
-
-	for _, v := range a {
-		mapA[v] = struct{}{}
+	// Comparar la gramática resultante con la esperada
+	if !compareGrammars(result, expectedRemoveGeneratingSymbols) {
+		t.Errorf("Error: La gramática resultante de RemoveNonGeneratingSymbols no coincide con la esperada.\nEsperado: %v\nObtenido: %v", expectedRemoveGeneratingSymbols.String(true), result.String(true))
 	}
-	for _, v := range b {
-		mapB[v] = struct{}{}
-	}
-
-	return reflect.DeepEqual(mapA, mapB)
 }
-*/
+
+// Test para la función RemoveNonReachableSymbols
+func TestRemoveNonReachableSymbols(t *testing.T) {
+	// Ejecutar la función para eliminar los símbolos no alcanzables
+	result := RemoveNonReachableSymbols(grammarTestUselessSymbolElimination)
+
+	// Comparar la gramática resultante con la esperada
+	if !compareGrammars(result, expectedRemoveReachableSymbols) {
+		t.Errorf("Error: La gramática resultante de RemoveNonReachableSymbols no coincide con la esperada.\nEsperado: %v\nObtenido: %v", expectedRemoveReachableSymbols.String(true), result.String(true))
+	}
+}
+
+// Test para la función RemoveUselessSymbols
+func TestRemoveUselessSymbols(t *testing.T) {
+	// Ejecutar la función para eliminar los símbolos inútiles (no generadores y no alcanzables)
+	result := RemoveUselessSymbols(grammarTestUselessSymbolElimination)
+
+	// Comparar la gramática resultante con la esperada
+	if !compareGrammars(result, expectedTestUselessSymbolElimination) {
+		t.Errorf("Error: La gramática resultante de RemoveUselessSymbols no coincide con la esperada.\nEsperado: %v\nObtenido: %v", expectedTestUselessSymbolElimination.String(true), result.String(true))
+	}
+}
