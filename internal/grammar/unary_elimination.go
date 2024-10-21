@@ -3,7 +3,7 @@ package grammar
 /*
 Inicializa las parejas base (A, A) para cada no terminal A y las producciones unarias en su mismo conjunto
 */
-func initializeUnaryPairs(originalGrammar *Grammar) map[Symbol][]Symbol {
+func InitializeUnaryPairs(originalGrammar *Grammar) map[Symbol][]Symbol {
 
 	nonTerminals := originalGrammar.nonTerminals
 	unaryBase := make(map[Symbol][]Symbol)
@@ -33,7 +33,7 @@ func initializeUnaryPairs(originalGrammar *Grammar) map[Symbol][]Symbol {
 /*
 Encuentra todas las parejas unarias de toda la gramática
 */
-func findUnaryPairs(unaryBase map[Symbol][]Symbol) map[Symbol][]Symbol {
+func FindUnaryPairs(unaryBase map[Symbol][]Symbol) map[Symbol][]Symbol {
 	// Crear un nuevo mapa para almacenar las parejas unarias extendidas
 	unaryPairs := make(map[Symbol][]Symbol)
 
@@ -80,7 +80,10 @@ func findUnaryPairs(unaryBase map[Symbol][]Symbol) map[Symbol][]Symbol {
 /*
 Elimina las producciones unarias y ajusta la gramática
 */
-func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[Symbol][]Symbol, nonTerminals []Symbol) *Grammar {
+func RemoveUnaryProductions(originalGrammar *Grammar, nonTerminals []Symbol) *Grammar {
+	unaryBase := InitializeUnaryPairs(originalGrammar)
+	unaryPairs := FindUnaryPairs(unaryBase)
+
 	newGrammar := &Grammar{
 		terminals:    originalGrammar.terminals,
 		nonTerminals: originalGrammar.nonTerminals,

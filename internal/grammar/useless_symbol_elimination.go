@@ -231,13 +231,7 @@ func RemoveNonReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) *Gr
 /*
 Función que elimina los símbolos inútiles (no generadores y no alcanzables)
 */
-func RemoveUselessSymbols(originalGrammar *Grammar) *Grammar {
-	// Asegurar que el símbolo inicial sea el primer no terminal en la lista nonTerminals
-	if len(originalGrammar.nonTerminals) == 0 {
-		return originalGrammar
-	}
-
-	startSymbol := originalGrammar.nonTerminals[0]
+func RemoveUselessSymbols(originalGrammar *Grammar, startSymbol Symbol) *Grammar {
 
 	// Primero eliminamos los símbolos no generadores
 	grammarWithoutGeneratingSymbols := RemoveNonGeneratingSymbols(originalGrammar)

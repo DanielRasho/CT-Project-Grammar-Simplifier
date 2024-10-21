@@ -63,7 +63,7 @@ var expectedFindUnaryPairs = map[Symbol][]Symbol{
 // TestInitializeUnaryPairs verifica la correcta inicialización de pares unarios.
 func TestInitializeUnaryPairs(t *testing.T) {
 	// Se inicializan las parejas unarias usando la gramática de prueba
-	unaryPairs := initializeUnaryPairs(grammarTestUnaryElimination)
+	unaryPairs := InitializeUnaryPairs(grammarTestUnaryElimination)
 
 	// Verificar que los pares unarios coinciden con los esperados
 	for nonTerminal, expectedValues := range expectedinitializeUnaryPairs {
@@ -90,10 +90,10 @@ func TestInitializeUnaryPairs(t *testing.T) {
 // TestFindUnaryPairs verifica la correcta expansión de las parejas unarias.
 func TestFindUnaryPairs(t *testing.T) {
 	// Se inicializan los pares unarios
-	unaryBase := initializeUnaryPairs(grammarTestUnaryElimination)
+	unaryBase := InitializeUnaryPairs(grammarTestUnaryElimination)
 
 	// Se expanden las parejas unarias utilizando findUnaryPairs
-	unaryPairs := findUnaryPairs(unaryBase)
+	unaryPairs := FindUnaryPairs(unaryBase)
 
 	// Verificar que los pares unarios coinciden con los esperados
 	for nonTerminal, expectedValues := range expectedFindUnaryPairs {
@@ -120,7 +120,7 @@ func TestFindUnaryPairs(t *testing.T) {
 // Test for removeUnaryProductions
 func TestRemoveUnaryProductions(t *testing.T) {
 	// Execute the removeUnaryProductions function
-	resultGrammar := removeUnaryProductions(grammarTestUnaryElimination, expectedFindUnaryPairs, nonTerminalsTest)
+	resultGrammar := RemoveUnaryProductions(grammarTestUnaryElimination, nonTerminalsTest)
 
 	// Compare the result with the expected output
 	for key, expectedProductions := range expectedRemoveUnaryProductions.Productions {
