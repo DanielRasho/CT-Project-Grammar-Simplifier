@@ -13,7 +13,7 @@ var b1 = Symbol{isTerminal: true, value: "b", id: -1}
 var grammarTestUselessSymbolElimination = &Grammar{
 	terminals:    []Symbol{a1, b1},
 	nonTerminals: []Symbol{S1, A1, B1},
-	productions: map[Symbol][][]Symbol{
+	Productions: map[Symbol][][]Symbol{
 		S1: {{A1, B1}, {a1}},
 		A1: {{b1}},
 	},
@@ -23,7 +23,7 @@ var grammarTestUselessSymbolElimination = &Grammar{
 var expectedRemoveReachableSymbols = &Grammar{
 	terminals:    []Symbol{a1, b1},
 	nonTerminals: []Symbol{S1, A1, B1},
-	productions: map[Symbol][][]Symbol{
+	Productions: map[Symbol][][]Symbol{
 		S1: {{A1, B1}, {a1}},
 		A1: {{b1}},
 	},
@@ -33,7 +33,7 @@ var expectedRemoveReachableSymbols = &Grammar{
 var expectedRemoveGeneratingSymbols = &Grammar{
 	terminals:    []Symbol{a1, b1},
 	nonTerminals: []Symbol{S1, A1},
-	productions: map[Symbol][][]Symbol{
+	Productions: map[Symbol][][]Symbol{
 		S1: {{a1}},
 		A1: {{b1}},
 	},
@@ -43,7 +43,7 @@ var expectedRemoveGeneratingSymbols = &Grammar{
 var expectedTestUselessSymbolElimination = &Grammar{
 	terminals:    []Symbol{a1},
 	nonTerminals: []Symbol{S1},
-	productions: map[Symbol][][]Symbol{
+	Productions: map[Symbol][][]Symbol{
 		S1: {{a1}},
 	},
 }

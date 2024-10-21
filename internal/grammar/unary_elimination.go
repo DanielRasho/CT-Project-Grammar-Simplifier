@@ -15,7 +15,7 @@ func initializeUnaryPairs(originalGrammar *Grammar) map[Symbol][]Symbol {
 	}
 
 	// Añadir los unarios de una misma producción a unaryBase correspondiente a su encabezado
-	for head, productions := range originalGrammar.productions {
+	for head, productions := range originalGrammar.Productions {
 		for _, production := range productions {
 			// Si la producción es unaria
 			if isUnary(production, nonTerminals) {
@@ -84,7 +84,7 @@ func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[Symbol][]Sy
 	newGrammar := &Grammar{
 		terminals:    originalGrammar.terminals,
 		nonTerminals: originalGrammar.nonTerminals,
-		productions:  make(map[Symbol][][]Symbol),
+		Productions:  make(map[Symbol][][]Symbol),
 	}
 
 	// Iterar sobre cada no terminal en unaryPairs
@@ -92,13 +92,13 @@ func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[Symbol][]Sy
 		var productions [][]Symbol
 
 		// Recorrer los no terminales en la gramática original
-		for head := range originalGrammar.productions {
+		for head := range originalGrammar.Productions {
 			if key == head {
 				// Para cada símbolo value en los pares unarios de la clave
 				for _, value := range values {
 
 					// Si el valor de unaryPairs existe como encabezado en la gramática original
-					if newProductions, exists := originalGrammar.productions[value]; exists {
+					if newProductions, exists := originalGrammar.Productions[value]; exists {
 						// Por cada producción de ese encabezado
 						for _, newProduction := range newProductions {
 							// Si no es una producción unaria y no está ya en la lista, añadirla a las producciones
@@ -112,7 +112,7 @@ func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[Symbol][]Sy
 		}
 
 		// Asignar las producciones no unarias a la nueva gramática
-		newGrammar.productions[key] = productions
+		newGrammar.Productions[key] = productions
 	}
 
 	return newGrammar

@@ -17,7 +17,7 @@ var fgh = Symbol{isTerminal: true, value: "fgh", id: -1}
 var grammarTestUnaryElimination = &Grammar{
 	terminals:    []Symbol{abc, fgh},
 	nonTerminals: []Symbol{A, B, C, D, E},
-	productions: map[Symbol][][]Symbol{
+	Productions: map[Symbol][][]Symbol{
 		A: {{A}, {B}, {D}},
 		B: {{C}},
 		C: {{abc}, {D}},
@@ -30,7 +30,7 @@ var grammarTestUnaryElimination = &Grammar{
 var expectedRemoveUnaryProductions = &Grammar{
 	terminals:    []Symbol{abc, fgh},
 	nonTerminals: []Symbol{A, B, C, D, E},
-	productions: map[Symbol][][]Symbol{
+	Productions: map[Symbol][][]Symbol{
 		A: {{abc}, {fgh}},
 		B: {{abc}, {fgh}},
 		C: {{abc}, {fgh}},
@@ -123,8 +123,8 @@ func TestRemoveUnaryProductions(t *testing.T) {
 	resultGrammar := removeUnaryProductions(grammarTestUnaryElimination, expectedFindUnaryPairs, nonTerminalsTest)
 
 	// Compare the result with the expected output
-	for key, expectedProductions := range expectedRemoveUnaryProductions.productions {
-		resultProductions, exists := resultGrammar.productions[key]
+	for key, expectedProductions := range expectedRemoveUnaryProductions.Productions {
+		resultProductions, exists := resultGrammar.Productions[key]
 		if !exists {
 			t.Errorf("Error: No producciones encontradas para %v", key)
 		}
