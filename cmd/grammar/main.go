@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 
+	io "github.com/DanielRasho/Computation-Theory/internal/IO"
 	ast "github.com/DanielRasho/Computation-Theory/internal/abstract_syntax_tree"
+	"github.com/DanielRasho/Computation-Theory/internal/grammar"
 	nfaAutomata "github.com/DanielRasho/Computation-Theory/internal/nfa"
 	runner "github.com/DanielRasho/Computation-Theory/internal/runner_simulation"
 	shuttingyard "github.com/DanielRasho/Computation-Theory/internal/shuntingyard"
@@ -25,42 +25,41 @@ var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|%s|ε)+\\|)*(%s|%s|%s|%s|�
 	NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS)
 
 func main() {
-
 	filepath := "./input_data/grammars.txt"
-	file, err := os.Open(filepath)
+
+	fileReader, err := io.ReadFile(filepath)
+
 	if err != nil {
-		fmt.Printf("No se pudo abrir el archivo: %s.\n%v", filepath, err)
+		fmt.Printf("No se puedo abrir el archivo: %s.\n %v", filepath, err)
 		return
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	defer fileReader.Close()
 
 	// Creamos un NFA para validar las producciones
 	nfa := NFA_initializer()
-
-	// var currentGrammar grammar.Grammar = make(grammar.Grammar)
+	currentGrammar := grammar.Grammar{Productions: make(map[grammar.Symbol][][]grammar.Symbol)}
 	grammarCounter := 1
+
 	fmt.Println("\n=================================")
 	fmt.Printf("📝 Procesando gramática %d:\n", grammarCounter)
 	fmt.Println("=================================")
-	for scanner.Scan() {
-		line := scanner.Text()
-		line = strings.TrimSpace(line)
+
+	var line string
+	for fileReader.NextLine(&line) {
 
 		// Detecta el delimitador que separa las gramáticas
 		if line == "---" {
+			grammar.SimplifyGrammar(&currentGrammar, true)
+
 			grammarCounter++
 			fmt.Println("\n=================================")
 			fmt.Printf("📝 Procesando gramática %d:\n", grammarCounter)
 			fmt.Println("=================================")
-			continue
-			/*
-				grammar.SimplifyGrammar(&currentGrammar, true)
 
-				// Preparar para la siguiente gramática
-				currentGrammar = make(grammar.Grammar)
-			*/
+			// Preparar para la siguiente gramática
+			currentGrammar = grammar.Grammar{Productions: make(map[grammar.Symbol][][]grammar.Symbol)}
+			continue
 		}
 
 		// Ignorar líneas vacías o comentarios
@@ -72,7 +71,7 @@ func main() {
 		conclusion := runner.RunnerNFA(nfa, line)
 		if conclusion {
 			fmt.Printf(" is ✅\n")
-			// currentGrammar.AddProduction(line)
+			currentGrammar.AddProductionFromString(line)
 		} else {
 			fmt.Printf(" is ❌\n ERROR: incorrect grammar\n")
 			return
