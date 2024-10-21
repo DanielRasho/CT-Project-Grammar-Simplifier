@@ -25,30 +25,30 @@ func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
 		fmt.Println(factorizedGrammar.String(true))
 	}
 
-	// fmt.Println("\nr3️⃣ REMOVER RECURSION POR LA IZQUIERDA:")
-	// grammarWithouthRecursion := removeLeftRecursivity(factorizedGrammar)
-	// if printSteps {
-	// 	fmt.Println(grammarWithouthRecursion.String(true))
-	// }
+	fmt.Println("\nr3️⃣ REMOVER RECURSION POR LA IZQUIERDA:")
+	grammarWithouthRecursion := removeLeftRecursivity(factorizedGrammar)
+	if printSteps {
+		fmt.Println(grammarWithouthRecursion.String(true))
+	}
 
 	fmt.Println("\n4️⃣  ELIMINACIÓN DE EPSILON:")
 
 	// Paso 1: Identificar los símbolos directos anulables
-	directNullables := identifyDirectNullables(factorizedGrammar)
+	directNullables := identifyDirectNullables(grammarWithouthRecursion)
 	if printSteps {
 		fmt.Println("\n🔴  2.1 Símbolos anulables directos encontrados:")
 		fmt.Printf("\t%v\n", *directNullables)
 	}
 
 	// Paso 2: Identificar todos los símbolos anulables (directos e indirectos)
-	allNullables := identifyIndirectNullables(factorizedGrammar, *directNullables)
+	allNullables := identifyIndirectNullables(grammarWithouthRecursion, *directNullables)
 	if printSteps {
 		fmt.Println("\n🔴  2.2 Todos los símbolos anulables encontrados:")
 		fmt.Printf("\t%v\n", *allNullables)
 	}
 
 	// Paso 3: Reemplazar los símbolos anulables en las producciones
-	grammarWithoutEpsilons := ReplaceNullables(factorizedGrammar, *allNullables)
+	grammarWithoutEpsilons := ReplaceNullables(grammarWithouthRecursion, *allNullables)
 	if printSteps {
 		fmt.Println("\n🔴  2.3 Gramática DESPUÉS de reemplazar los anulables:")
 		fmt.Println(grammarWithoutEpsilons.String(true))
