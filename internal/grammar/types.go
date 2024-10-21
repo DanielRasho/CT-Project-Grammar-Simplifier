@@ -530,20 +530,26 @@ func FindHeadsProducingTerminal(grammar *Grammar, terminalValue string) []string
 	return heads
 }
 
-// Función que busca producciones con un par de no terminales y devuelve los heads
+// Función que busca producciones con un par de no terminales concatenados y devuelve los heads
 func FindHeadsProducingNonTerminals(grammar *Grammar, nonTerminal1, nonTerminal2 Symbol) []string {
 	heads := []string{} // Lista para almacenar los heads que producen el par de no terminales
+
+	// Concatenar los valores de los dos no terminales
+	concatenated := nonTerminal1.Value + nonTerminal2.Value
 
 	// Recorrer los no terminales en el orden de la lista de nonTerminals
 	for _, nonTerminal := range grammar.NonTerminals {
 		// Buscar si existen producciones para ese no terminal
 		if bodies, exists := grammar.Productions[nonTerminal]; exists {
 			for _, body := range bodies {
-				// Verificar si la producción tiene exactamente dos no terminales
-				if len(body) == 2 && !body[0].IsTerminal && !body[1].IsTerminal {
-					// Comparar los no terminales de la producción con los proporcionados
-					if body[0] == nonTerminal1 && body[1] == nonTerminal2 {
-						// Añadir el value del head (nonTerminal) a la lista si produce el par de no terminales
+				// Verificar si la producción tiene exactamente dos elementos
+				if len(body) == 2 {
+					// Concatenar los valores de los dos símbolos del cuerpo de la producción
+					bodyConcat := body[0].Value + body[1].Value
+
+					// Comparar la concatenación del cuerpo con la concatenación de los no terminales
+					if bodyConcat == concatenated {
+						// Añadir el value del head (nonTerminal) a la lista si produce el par concatenado
 						heads = append(heads, nonTerminal.Value)
 					}
 				}
