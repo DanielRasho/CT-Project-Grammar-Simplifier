@@ -9,7 +9,7 @@ func identifyDirectNullables(grammar *Grammar) *[]Symbol {
 	for head, bodies := range grammar.Productions {
 		for _, body := range bodies {
 			for _, symbol := range body {
-				if symbol.value == "ε" && symbol.isTerminal == true {
+				if symbol.value == "ε" && symbol.isTerminal {
 					directNullables = append(directNullables, head)
 					continue
 				}

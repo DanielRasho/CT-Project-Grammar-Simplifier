@@ -41,18 +41,21 @@ func (g *Grammar) String(verbose bool) string {
 		sb.WriteString(fmt.Sprintf("Terminals: %v\n\n", getSymbolSliceString(&g.terminals)))
 	}
 
-	for head, bodies := range g.Productions {
-		sb.WriteString(head.String())
-		sb.WriteString(" -> ")
-		for index, body := range bodies {
-			for _, symbol := range body {
-				sb.WriteString(symbol.String())
+	// Recorrer las producciones según el orden de los no terminales
+	for _, head := range g.nonTerminals {
+		if bodies, exists := g.Productions[head]; exists {
+			sb.WriteString(head.String())
+			sb.WriteString(" -> ")
+			for index, body := range bodies {
+				for _, symbol := range body {
+					sb.WriteString(symbol.String())
+				}
+				if index != len(bodies)-1 {
+					sb.WriteString("|")
+				}
 			}
-			if index != len(bodies)-1 {
-				sb.WriteString("|")
-			}
+			sb.WriteString("\n")
 		}
-		sb.WriteString("\n")
 	}
 
 	return sb.String()
@@ -212,6 +215,21 @@ func removeDuplicatesSlices(slice [][]Symbol) [][]Symbol {
 	return unique
 }
 
+// Función para eliminar duplicados en un slice de strings
+func removeDuplicatesString(slice []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for _, v := range slice {
+		if !encountered[v] {
+			encountered[v] = true
+			result = append(result, v)
+		}
+	}
+
+	return result
+}
+
 // Removes all occurrences of symbolToRemove from items and returns the updated slice.
 func removeSymbols(items *[]Symbol, symbolToRemove *Symbol) *[]Symbol {
 	// Create a new slice to hold the result
@@ -291,16 +309,6 @@ func isComposedOfSymbols(validSymbols []Symbol, body []Symbol) bool {
 }
 
 // Checks if a string exists in a slice
-func contains(slice []string, item string) bool {
-	for _, element := range slice {
-		if element == item {
-			return true
-		}
-	}
-	return false
-}
-
-// Checks if a string exists in a slice
 func containsSymbol(slice []Symbol, item Symbol) bool {
 	for _, s := range slice {
 		if s == item { // Compare each Symbol in the slice
@@ -365,15 +373,6 @@ func areSymbolSlicesEqual(a, b []Symbol) bool {
 		}
 	}
 	return true
-}
-
-// Helper function para obtener las claves de un mapa.
-func getKeys(m map[Symbol]struct{}) []Symbol {
-	keys := make([]Symbol, 0, len(m))
-	for key := range m {
-		keys = append(keys, key)
-	}
-	return keys
 }
 
 // Función auxiliar para comparar dos gramáticas
@@ -460,4 +459,70 @@ func productionString(p []Symbol) string {
 		result += symbol.String()
 	}
 	return result
+}
+
+// Función para ordenar las producciones de la gramática según el orden de los no terminales
+func OrderProductionsByNonTerminals(originalGrammar *Grammar) *Grammar {
+	// Crear una nueva gramática para almacenar las producciones ordenadas
+	orderedGrammar := &Grammar{
+		terminals:    originalGrammar.terminals,
+		nonTerminals: originalGrammar.nonTerminals,
+		Productions:  make(map[Symbol][][]Symbol),
+	}
+
+	// Recorrer la lista de no terminales en el orden dado
+	for _, nonTerminal := range originalGrammar.nonTerminals {
+		// Si existen producciones para este no terminal en la gramática original
+		if productions, exists := originalGrammar.Productions[nonTerminal]; exists {
+			// Añadir las producciones a la gramática ordenada en el mismo orden de los no terminales
+			orderedGrammar.Productions[nonTerminal] = productions
+		}
+	}
+
+	return orderedGrammar
+}
+
+// Función que busca terminales en las producciones y devuelve los heads
+func FindHeadsProducingTerminal(grammar *Grammar, terminalValue string) []string {
+	heads := []string{} // Lista para almacenar los heads que producen directamente el terminal
+
+	// Recorrer los no terminales en el orden de la lista de nonTerminals
+	for _, nonTerminal := range grammar.nonTerminals {
+		// Buscar si existen producciones para ese no terminal
+		if bodies, exists := grammar.Productions[nonTerminal]; exists {
+			for _, body := range bodies {
+				// Verificar si la producción tiene exactamente un símbolo y es un terminal
+				if len(body) == 1 && body[0].isTerminal && body[0].value == terminalValue {
+					// Añadir el value del head (nonTerminal) a la lista si produce directamente el terminal
+					heads = append(heads, nonTerminal.value)
+				}
+			}
+		}
+	}
+
+	return heads
+}
+
+// Función que busca producciones con un par de no terminales y devuelve los heads
+func FindHeadsProducingNonTerminals(grammar *Grammar, nonTerminal1, nonTerminal2 Symbol) []string {
+	heads := []string{} // Lista para almacenar los heads que producen el par de no terminales
+
+	// Recorrer los no terminales en el orden de la lista de nonTerminals
+	for _, nonTerminal := range grammar.nonTerminals {
+		// Buscar si existen producciones para ese no terminal
+		if bodies, exists := grammar.Productions[nonTerminal]; exists {
+			for _, body := range bodies {
+				// Verificar si la producción tiene exactamente dos no terminales
+				if len(body) == 2 && !body[0].isTerminal && !body[1].isTerminal {
+					// Comparar los no terminales de la producción con los proporcionados
+					if body[0] == nonTerminal1 && body[1] == nonTerminal2 {
+						// Añadir el value del head (nonTerminal) a la lista si produce el par de no terminales
+						heads = append(heads, nonTerminal.value)
+					}
+				}
+			}
+		}
+	}
+
+	return heads
 }
