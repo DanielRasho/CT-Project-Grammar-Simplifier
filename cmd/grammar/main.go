@@ -14,7 +14,7 @@ import (
 )
 
 // REGEX DEFINITIONS
-const LETTERS string = "[abcdefghijklmnopqrstuvwxyz]"
+const LETTERS string = "[abcdefghijklmnopqrstuvwxyz ]"
 const CAPITAL_LETTERS string = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
 const OPERATORS string = "[\\+\\*\\(\\)]"
 const DIGITS string = "[0123456789]"

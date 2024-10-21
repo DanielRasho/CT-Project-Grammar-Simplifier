@@ -5,7 +5,7 @@ VP -> {V}{BP}
 VP -> cooks|drinks|eats|cuts
 PP -> {P}{NP}
 NP -> {DET}{N}
-NP -> he|she
+NP -> he |she 
 V -> cooks|drinks|eats|cuts
 P -> in|with
 N -> cat|dog
