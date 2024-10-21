@@ -86,3 +86,14 @@ type Grammar struct {
 	Productions  map[Symbol][][]Symbol // The actual productions.
 }
 ```
+
+# Ejemplos
+
+```
+# Gramatica 1
+S -> {A}{B}|{B}{C}
+A -> {B}{A}|a
+B -> {C}{C}|b
+C -> {A}{B}|a
+```
+Testeado con la cadena : baaba
