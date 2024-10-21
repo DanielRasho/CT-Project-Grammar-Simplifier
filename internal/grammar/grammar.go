@@ -63,5 +63,20 @@ func SimplifyGrammar(grammar *Grammar, printSteps bool) *Grammar {
 		fmt.Println("\n🔴  Grammar AFTER remove useless symbol")
 		fmt.Println(finalGrammar3.String(true))
 	}
-	return finalGrammar3
+
+	// Paso 7: Normalizar paso 1
+	ncfGrammar1 := CNFTerminalSubstitution(finalGrammar3)
+	if printSteps {
+		fmt.Println("\n🔴  Grammar AFTER normalize chomsky step 1")
+		fmt.Println(ncfGrammar1.String(true))
+	}
+
+	// Paso 7: Normalizar paso 2
+	ncfGrammar2 := CNFSplitLargeProductions(ncfGrammar1)
+	if printSteps {
+		fmt.Println("\n🔴  Grammar AFTER normalize chomsky step 2")
+		fmt.Println(ncfGrammar2.String(true))
+	}
+
+	return ncfGrammar2
 }
