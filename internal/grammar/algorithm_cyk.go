@@ -1,5 +1,7 @@
 package grammar
 
+import "fmt"
+
 // Función para determinar si una cadena es aceptada por una gramática en forma normal de Chomsky (CNF).
 func CYKParse(grammar *Grammar, cadena string, initialSymbol Symbol) bool {
 	lista_cadena := []rune(cadena)
@@ -60,13 +62,13 @@ func CYKParse(grammar *Grammar, cadena string, initialSymbol Symbol) bool {
 		}
 
 		// Imprimir el estado actual de la matriz después de completar la fila 'i'
-		// fmt.Printf("Matriz después de completar la fila %d:\n", i)
-		// for fi, fila := range matrixT {
-		// 	fmt.Printf("Fila %d:\n", fi)
-		// 	for j, heads := range fila {
-		// 		fmt.Printf("  Columna %d: %v\n", j, heads)
-		// 	}
-		// }
+		fmt.Printf("Matriz después de completar la fila %d:\n", i)
+		for fi, fila := range matrixT {
+			fmt.Printf("Fila %d:\n", fi)
+			for j, heads := range fila {
+				fmt.Printf("  Columna %d: %v\n", j, heads)
+			}
+		}
 	}
 
 	lastCell := matrixT[len(lista_cadena)-1][0]
