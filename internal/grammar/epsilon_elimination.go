@@ -1,17 +1,18 @@
 package grammar
 
-/*
 // Return a list of all the Direct nullables on the grammar
 // Ex: A -> ε
-func identifyDirectNullables(grammar *Grammar) *[]string {
+func identifyDirectNullables(grammar *Grammar) *[]Symbol {
 
-	directNullables := make([]string, 0, 3)
+	directNullables := make([]Symbol, 0, 3)
 
-	for head, body := range *grammar {
-		for _, v := range body {
-			if v == "ε" {
-				directNullables = append(directNullables, head)
-				continue
+	for head, bodies := range grammar.Productions {
+		for _, body := range bodies {
+			for _, symbol := range body {
+				if symbol.value == "ε" && symbol.isTerminal == true {
+					directNullables = append(directNullables, head)
+					continue
+				}
 			}
 		}
 	}
@@ -21,10 +22,10 @@ func identifyDirectNullables(grammar *Grammar) *[]string {
 // Identify indirect nullables
 //
 // Returns: List of all nullables (direct an indirect)
-func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
+func identifyIndirectNullables(grammar *Grammar, nullabes []Symbol) *[]Symbol {
 
-	pastNullables := make([]string, len(nullabes))
-	newNullables := make([]string, len(nullabes))
+	pastNullables := make([]Symbol, len(nullabes))
+	newNullables := make([]Symbol, len(nullabes))
 	copy(pastNullables, nullabes)
 	copy(newNullables, nullabes)
 
@@ -34,14 +35,14 @@ func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
 	//    no new production where found, hence ALL NULLABLE PRODUCTION WHERE FOUND
 	// 3. Else, repeat step 1 and 2.
 	for {
-		for head, bodies := range *grammar {
+		for head, bodies := range grammar.Productions {
 			// If the production is already nullable dont analize it.
-			if contains(pastNullables, head) {
+			if containsSymbol(pastNullables, head) {
 				continue
 			}
 			// else check if it is nullable and add it to the NewNullables list
 			for _, body := range bodies {
-				isNullable := isComposedOf(pastNullables, body)
+				isNullable := isComposedOfSymbols(pastNullables, body)
 				if isNullable {
 					newNullables = append(newNullables, head)
 					break
@@ -60,16 +61,18 @@ func identifyIndirectNullables(grammar *Grammar, nullabes []string) *[]string {
 }
 
 // ReplaceNullables reemplaza las producciones que contienen símbolos anulables.
-func ReplaceNullables(grammar *Grammar, nullables []string) *Grammar {
-	newGrammar := make(Grammar)
+func ReplaceNullables(grammar *Grammar, nullables []Symbol) *Grammar {
+	newGrammar := Grammar{
+		terminals:    grammar.terminals,
+		nonTerminals: grammar.nonTerminals,
+		Productions:  make(map[Symbol][][]Symbol)}
 
 	// Paso 1. Leer cada body de la gramática por cada head
-	for head, productions := range *grammar {
-		productionSet := make(map[string]struct{}) // Mapa para rastrear producciones únicas
-		var newProductions []string
+	for head, symbols := range grammar.Productions {
+		productionSet := make([][]Symbol, 0) // Mapa para rastrear producciones únicas
 
 		// Cola para procesar producciones pendientes
-		queue := append([]string{}, productions...)
+		queue := append([][]Symbol{}, symbols...)
 
 		// Procesar todas las producciones en la cola
 		for len(queue) > 0 {
@@ -77,21 +80,19 @@ func ReplaceNullables(grammar *Grammar, nullables []string) *Grammar {
 			queue = queue[1:]
 
 			// Caso 1: No hay símbolos anulables, se añade la producción tal cual si no se ha añadido antes
-			if _, exists := productionSet[production]; !exists {
-				newProductions = append(newProductions, production)
-				productionSet[production] = struct{}{}
+			if !containsSymbolSlice(productionSet, production) {
+				productionSet = append(productionSet, production)
 			}
 
 			// Caso 2: Existen símbolos anulables en la producción
 			for _, nullable := range nullables {
-				if strings.Contains(production, nullable) {
+				if containsSymbol(production, nullable) {
 					// Generar todas las combinaciones posibles reemplazando el símbolo nullable
-					combinations := CombinationNullables(nullable, production)
-					for _, newProd := range combinations {
+					combinations := CombinationNullables(&nullable, &production)
+					for _, newProd := range *combinations {
 						// Evitar duplicados y procesar nuevas combinaciones
-						if _, exists := productionSet[newProd]; !exists {
-							newProductions = append(newProductions, newProd)
-							productionSet[newProd] = struct{}{}
+						if !containsSymbolSlice(productionSet, newProd) {
+							productionSet = append(productionSet, production)
 							queue = append(queue, newProd)
 						}
 					}
@@ -99,86 +100,61 @@ func ReplaceNullables(grammar *Grammar, nullables []string) *Grammar {
 			}
 		}
 
-		newGrammar[head] = newProductions
+		newGrammar.Productions[head] = removeDuplicatesSlices(productionSet)
 	}
 
 	return &newGrammar
 }
 
 // CombinationNullables genera todas las combinaciones posibles al reemplazar el símbolo nullable.
-func CombinationNullables(nullable string, baseProduction string) []string {
-	var newProductions []string
-	chars := []rune(baseProduction)
+func CombinationNullables(nullable *Symbol, baseProduction *[]Symbol) *[][]Symbol {
+	var newProductions [][]Symbol
 
 	// Recorrer la producción y reemplazar el símbolo nullable por epsilon
-	for i := 0; i < len(chars); i++ {
-		if string(chars[i]) == nullable {
+	for i := 0; i < len(*baseProduction); i++ {
+		if (*baseProduction)[i] == *nullable {
 			// Crear una nueva producción con el símbolo reemplazado por epsilon
-			newProd := []rune(baseProduction)
-			newProd[i] = []rune(Epsilon)[0]
-			newProductions = append(newProductions, string(newProd))
+			newProd := make([]Symbol, len(*baseProduction))
+			copy(newProd, *baseProduction)
+			newProd[i] = EpsilonSymbol
+			newProductions = append(newProductions, newProd)
 		}
 	}
 
-	return newProductions
-}
-
-// CalculateRemoveSize cuenta cuántas veces aparece un no terminal en una producción.
-func CalculateRemoveSize(production string, nonTerminals map[string]struct{}) int {
-	count := 0
-	for _, char := range production {
-		symbol := string(char)
-		if _, exists := nonTerminals[symbol]; exists {
-			count++
-		}
-	}
-	return count
-}
-
-// Revoves duplicates on a slice.
-func RemoveDuplicates(slice []string) []string {
-	uniqueMap := make(map[string]bool)
-	var result []string
-
-	for _, item := range slice {
-		if _, exists := uniqueMap[item]; !exists {
-			uniqueMap[item] = true
-			result = append(result, item)
-		}
-	}
-
-	return result
+	return &newProductions
 }
 
 // RemoveEpsilons elimina los caracteres epsilon de la producción y elimina duplicados
 func RemoveEpsilons(grammar *Grammar) *Grammar {
 	// Crear una nueva gramática para almacenar las producciones sin epsilon
-	newGrammar := make(Grammar)
+	newGrammar := Grammar{
+		terminals:    grammar.terminals,
+		nonTerminals: grammar.nonTerminals,
+		Productions:  make(map[Symbol][][]Symbol)}
 
 	// Iterar sobre las cabezas de la gramática y sus producciones
-	for head, productions := range *grammar {
-		var newNonEpsilonProductions []string
+	for head, bodies := range grammar.Productions {
+		var newNonEpsilonBodies [][]Symbol
 
-		for _, production := range productions {
+		for _, body := range bodies {
 			// Reemplazar epsilon por una cadena vacía
-			nonEpsilonProduction := strings.ReplaceAll(production, Epsilon, "")
+			nonEpsilonProduction := removeSymbols(&body, &EpsilonSymbol)
 
 			// Solo agregar producciones no vacías
-			if nonEpsilonProduction != "" {
-				newNonEpsilonProductions = append(newNonEpsilonProductions, nonEpsilonProduction)
+			if len(*nonEpsilonProduction) > 0 {
+				newNonEpsilonBodies = append(newNonEpsilonBodies, *nonEpsilonProduction)
 			}
 		}
 
 		// Eliminar duplicados en las nuevas producciones
-		newNonEpsilonProductions = RemoveDuplicates(newNonEpsilonProductions)
+		newNonEpsilonBodies = removeDuplicatesSlices(newNonEpsilonBodies)
 
 		// Evitar agregar entradas vacías en la nueva gramática
-		if len(newNonEpsilonProductions) > 0 {
-			newGrammar[head] = newNonEpsilonProductions
+		if len(newNonEpsilonBodies) > 0 {
+			newGrammar.Productions[head] = newNonEpsilonBodies
 		}
 	}
 
 	// Retornar la nueva gramática
 	return &newGrammar
 }
-*/

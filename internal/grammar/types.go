@@ -7,6 +7,12 @@ import (
 
 const Epsilon = "ε"
 
+var EpsilonSymbol Symbol = Symbol{
+	isTerminal: true,
+	value:      "ε",
+	id:         0,
+}
+
 type Symbol struct {
 	isTerminal bool
 	value      string
@@ -23,7 +29,7 @@ func (s *Symbol) String() string {
 type Grammar struct {
 	terminals    []Symbol              // List of all cached terminals in the grammar.
 	nonTerminals []Symbol              // List of all cached NON terminals in the grammar.
-	productions  map[Symbol][][]Symbol // The actual productions.
+	Productions  map[Symbol][][]Symbol // The actual productions.
 }
 
 // returns: a readable representation of the grammar.
@@ -34,7 +40,7 @@ func (g *Grammar) String(verbose bool) string {
 		sb.WriteString(fmt.Sprintf("Terminals: %v\n\n", getSymbolSliceString(&g.terminals)))
 	}
 
-	for head, bodies := range g.productions {
+	for head, bodies := range g.Productions {
 		sb.WriteString(head.String())
 		sb.WriteString(" -> ")
 		for index, body := range bodies {
@@ -65,7 +71,7 @@ func getSymbolSliceString(slice *[]Symbol) string {
 }
 
 // Adds a production to a grammar, removing repeated body values.
-func (g *Grammar) AddProduction(production string) {
+func (g *Grammar) AddProductionFromString(production string) {
 	// Since a production has the shape A -> a|{B}C
 	// There are 2 divisions between the Head, Arrow, And Body.
 	division1 := strings.Index(production, " ")                               // Find first space index
@@ -76,7 +82,7 @@ func (g *Grammar) AddProduction(production string) {
 	bodyItems := strings.Split(body, "|")
 
 	// If production is not registered create it
-	if _, exist := g.productions[head]; !exist {
+	if _, exist := g.Productions[head]; !exist {
 		// Add new NON terminal
 		g.nonTerminals = append(g.nonTerminals, head)
 		bodySymbols := make([][]Symbol, 0)
@@ -89,10 +95,10 @@ func (g *Grammar) AddProduction(production string) {
 		}
 		// Remove duplicate bodies.
 		bodySymbols = removeDuplicatesSlices(bodySymbols)
-		g.productions[head] = bodySymbols
+		g.Productions[head] = bodySymbols
 	} else {
 		// Else append the body new items with the old ones
-		existentBodyItems := g.productions[head]
+		existentBodyItems := g.Productions[head]
 		for _, v := range bodyItems {
 			body, nonTerminal, terminal := splitStringIntoSymbols(v)
 			g.nonTerminals = append(g.nonTerminals, nonTerminal...)
@@ -101,10 +107,73 @@ func (g *Grammar) AddProduction(production string) {
 		}
 		// Remove duplicate bodies.
 		existentBodyItems = removeDuplicatesSlices(existentBodyItems)
-		g.productions[head] = existentBodyItems
+		g.Productions[head] = existentBodyItems
 	}
 	g.nonTerminals = removeDuplicatesSymbols(g.nonTerminals)
 	g.terminals = removeDuplicatesSymbols(g.terminals)
+}
+
+func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
+	// Find the highest ID for the given head value in nonTerminals
+	newID := 0
+	for _, nonTerminal := range g.nonTerminals {
+		if nonTerminal.value == head {
+			newID = nonTerminal.id + 1 // Increment the ID to be unique
+		}
+	}
+
+	// Create a new Symbol for the head with the next available ID
+	newHead := Symbol{
+		isTerminal: false,
+		value:      head,
+		id:         newID,
+	}
+
+	// Add the new production to the productions map
+	g.Productions[newHead] = bodies
+
+	// UPDATE nonTerminals an Terminals list:
+	// Add the new head to the nonTerminals list if it's not already there
+	g.nonTerminals = append(g.nonTerminals, newHead)
+
+	// Add new symbols from the body to Terminals list.
+	for _, body := range bodies {
+		for _, symbol := range body {
+			if symbol.isTerminal {
+				g.terminals = append(g.terminals, symbol)
+			}
+		}
+	}
+	g.terminals = removeDuplicatesSymbols(g.terminals)
+
+	// Return a reference to the new head Symbol
+	return &newHead
+}
+
+func (g *Grammar) AddProductionBodies(head Symbol, bodies [][]Symbol) *Symbol {
+
+	if _, exist := g.Productions[head]; !exist {
+		g.nonTerminals = append(g.nonTerminals, head)
+		g.Productions[head] = bodies
+	} else {
+		g.Productions[head] = append(g.Productions[head], bodies...)
+	}
+
+	// Remove duplicate bodies
+	g.Productions[head] = removeDuplicatesSlices(g.Productions[head])
+
+	// UPDATE nonTerminals lists
+	// Add new symbols from the body to Terminals list.
+	for _, body := range bodies {
+		for _, symbol := range body {
+			if symbol.isTerminal {
+				g.terminals = append(g.terminals, symbol)
+			}
+		}
+	}
+	g.terminals = removeDuplicatesSymbols(g.terminals)
+
+	return &head
 }
 
 // Revoves duplicates on a slice.
@@ -120,19 +189,6 @@ func removeDuplicatesSymbols(slice []Symbol) []Symbol {
 	}
 
 	return result
-}
-
-// Helper function to check if two slices of Symbol are equal
-func areSymbolSlicesEqual(a, b []Symbol) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] { // Compare individual Symbol structs
-			return false
-		}
-	}
-	return true
 }
 
 // Remove the duplicate slices within a slice of slices.
@@ -153,6 +209,22 @@ func removeDuplicatesSlices(slice [][]Symbol) [][]Symbol {
 	}
 
 	return unique
+}
+
+// Removes all occurrences of symbolToRemove from items and returns the updated slice.
+func removeSymbols(items *[]Symbol, symbolToRemove *Symbol) *[]Symbol {
+	// Create a new slice to hold the result
+	result := []Symbol{}
+
+	// Iterate through the items slice
+	for _, symbol := range *items {
+		// Add to result only if the current symbol is not equal to symbolToRemove
+		if symbol != *symbolToRemove {
+			result = append(result, symbol)
+		}
+	}
+
+	return &result
 }
 
 // Split the string into Symbols and return body, nonTerminals, and terminals
@@ -200,17 +272,17 @@ func splitStringIntoSymbols(input string) (body []Symbol, nonTerminals []Symbol,
 //
 // item: string to check
 //
-// Returns: true if item is make only by items of slice
-func isComposedOf(slice []string, item string) bool {
-	// Create a set for quick lookup
-	set := make(map[string]struct{}, len(slice))
-	for _, char := range slice {
-		set[char] = struct{}{}
+// Returns: true if item is made only by items of slice
+func isComposedOfSymbols(validSymbols []Symbol, body []Symbol) bool {
+	// Create a set for quick lookup of valid symbols
+	set := make(map[Symbol]struct{}, len(validSymbols))
+	for _, symbol := range validSymbols {
+		set[symbol] = struct{}{}
 	}
 
-	// Check if every character in the item is in the set
-	for _, char := range item {
-		if _, exists := set[string(char)]; !exists {
+	// Check if every symbol in the body is in the set of valid symbols
+	for _, symbol := range body {
+		if _, exists := set[symbol]; !exists {
 			return false
 		}
 	}
@@ -256,6 +328,16 @@ func containsProduction(productions [][]Symbol, production []Symbol) bool {
 	return false
 }
 
+// Checks if a slice of symbols (item) exists in a slice of slices (items)
+func containsSymbolSlice(items [][]Symbol, item []Symbol) bool {
+	for _, slice := range items {
+		if areSymbolSlicesEqual(slice, item) { // Use the helper function to compare slices
+			return true
+		}
+	}
+	return false
+}
+
 // Helper function que verifica si una producción está compuesta solo de símbolos generadores.
 func isComposedOfSymbol(generatingSymbols []Symbol, production []Symbol) bool {
 	generatingSet := make(map[Symbol]struct{})
@@ -265,6 +347,19 @@ func isComposedOfSymbol(generatingSymbols []Symbol, production []Symbol) bool {
 
 	for _, sym := range production {
 		if _, exists := generatingSet[sym]; !exists {
+			return false
+		}
+	}
+	return true
+}
+
+// Helper function to check if two slices of Symbol are equal
+func areSymbolSlicesEqual(a, b []Symbol) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] { // Compare individual Symbol structs
 			return false
 		}
 	}
@@ -293,12 +388,12 @@ func compareGrammars(g1, g2 *Grammar) bool {
 	}
 
 	// Comparar producciones
-	if len(g1.productions) != len(g2.productions) {
+	if len(g1.Productions) != len(g2.Productions) {
 		return false
 	}
 
-	for head, g1Productions := range g1.productions {
-		g2Productions, exists := g2.productions[head]
+	for head, g1Productions := range g1.Productions {
+		g2Productions, exists := g2.Productions[head]
 		if !exists {
 			return false
 		}
