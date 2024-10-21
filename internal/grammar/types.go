@@ -180,6 +180,33 @@ func (g *Grammar) AddProductionBodies(head Symbol, bodies [][]Symbol) *Symbol {
 	return &head
 }
 
+// Set te bodies of a production (true = succes, false = error)
+// but DO NOT update the terminals list. For that use RecalculateTerminals()
+func (g *Grammar) SetProductionBodies(head Symbol, bodies [][]Symbol) bool {
+
+	if _, exist := g.Productions[head]; !exist {
+		return false
+	}
+
+	g.Productions[head] = bodies
+
+	return true
+}
+
+func (g *Grammar) RecalculateTerminals() {
+	g.terminals = make([]Symbol, len(g.terminals))
+	for _, bodies := range g.Productions {
+		for _, body := range bodies {
+			for _, symbol := range body {
+				if symbol.isTerminal {
+					g.terminals = append(g.terminals, symbol)
+				}
+			}
+		}
+	}
+	g.terminals = removeDuplicatesSymbols(g.terminals)
+}
+
 // Revoves duplicates on a slice.
 func removeDuplicatesSymbols(slice []Symbol) []Symbol {
 	uniqueMap := make(map[Symbol]bool)
