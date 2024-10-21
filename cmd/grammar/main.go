@@ -20,7 +20,7 @@ const DIGITS string = "[0123456789]"
 const NON_TERMINALS string = "\\{([ABCDEFGHIJKLMNOPQRSTUVWXYZ])+\\}"
 
 // PRODUCTIONS_REGEX for matching grammar productions
-var PRODUCTIONS_REGEX = fmt.Sprintf("%s -> ((%s|%s|%s|%s|%s|ε)+\\|)*(%s|%s|%s|%s|%s|ε)+",
+var PRODUCTIONS_REGEX = fmt.Sprintf("(%s)+ -> ((%s|%s|%s|%s|%s|ε)+\\|)*(%s|%s|%s|%s|%s|ε)+",
 	CAPITAL_LETTERS,
 	OPERATORS, NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS,
 	OPERATORS, NON_TERMINALS, LETTERS, CAPITAL_LETTERS, DIGITS)

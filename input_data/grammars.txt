@@ -1,2 +1,2 @@
 # Gramatica 1
-E -> id
+EV -> id
