@@ -29,7 +29,7 @@ func (s *Symbol) String() string {
 type Grammar struct {
 	terminals    []Symbol              // List of all cached terminals in the grammar.
 	nonTerminals []Symbol              // List of all cached NON terminals in the grammar.
-	productions  map[Symbol][][]Symbol // The actual productions.
+	Productions  map[Symbol][][]Symbol // The actual productions.
 }
 
 // returns: a readable representation of the grammar.
@@ -40,7 +40,7 @@ func (g *Grammar) String(verbose bool) string {
 		sb.WriteString(fmt.Sprintf("Terminals: %v\n\n", getSymbolSliceString(&g.terminals)))
 	}
 
-	for head, bodies := range g.productions {
+	for head, bodies := range g.Productions {
 		sb.WriteString(head.String())
 		sb.WriteString(" -> ")
 		for index, body := range bodies {
@@ -82,7 +82,7 @@ func (g *Grammar) AddProductionFromString(production string) {
 	bodyItems := strings.Split(body, "|")
 
 	// If production is not registered create it
-	if _, exist := g.productions[head]; !exist {
+	if _, exist := g.Productions[head]; !exist {
 		// Add new NON terminal
 		g.nonTerminals = append(g.nonTerminals, head)
 		bodySymbols := make([][]Symbol, 0)
@@ -95,10 +95,10 @@ func (g *Grammar) AddProductionFromString(production string) {
 		}
 		// Remove duplicate bodies.
 		bodySymbols = removeDuplicatesSlices(bodySymbols)
-		g.productions[head] = bodySymbols
+		g.Productions[head] = bodySymbols
 	} else {
 		// Else append the body new items with the old ones
-		existentBodyItems := g.productions[head]
+		existentBodyItems := g.Productions[head]
 		for _, v := range bodyItems {
 			body, nonTerminal, terminal := splitStringIntoSymbols(v)
 			g.nonTerminals = append(g.nonTerminals, nonTerminal...)
@@ -107,7 +107,7 @@ func (g *Grammar) AddProductionFromString(production string) {
 		}
 		// Remove duplicate bodies.
 		existentBodyItems = removeDuplicatesSlices(existentBodyItems)
-		g.productions[head] = existentBodyItems
+		g.Productions[head] = existentBodyItems
 	}
 	g.nonTerminals = removeDuplicatesSymbols(g.nonTerminals)
 	g.terminals = removeDuplicatesSymbols(g.terminals)
@@ -130,7 +130,7 @@ func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 	}
 
 	// Add the new production to the productions map
-	g.productions[newHead] = bodies
+	g.Productions[newHead] = bodies
 
 	// UPDATE nonTerminals an Terminals list:
 	// Add the new head to the nonTerminals list if it's not already there
@@ -152,15 +152,15 @@ func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 
 func (g *Grammar) AddProductionBodies(head Symbol, bodies [][]Symbol) *Symbol {
 
-	if _, exist := g.productions[head]; !exist {
+	if _, exist := g.Productions[head]; !exist {
 		g.nonTerminals = append(g.nonTerminals, head)
-		g.productions[head] = bodies
+		g.Productions[head] = bodies
 	} else {
-		g.productions[head] = append(g.productions[head], bodies...)
+		g.Productions[head] = append(g.Productions[head], bodies...)
 	}
 
 	// Remove duplicate bodies
-	g.productions[head] = removeDuplicatesSlices(g.productions[head])
+	g.Productions[head] = removeDuplicatesSlices(g.Productions[head])
 
 	// UPDATE nonTerminals lists
 	// Add new symbols from the body to Terminals list.

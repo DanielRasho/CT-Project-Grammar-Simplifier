@@ -8,7 +8,7 @@ import (
 func TestAddProductionFromString(t *testing.T) {
 	// Create a new Grammar instance
 	g := Grammar{
-		productions: make(map[Symbol][][]Symbol),
+		Productions: make(map[Symbol][][]Symbol),
 	}
 
 	// Add some productions
@@ -33,7 +33,7 @@ func TestAddDuplicateProductionFromString(t *testing.T) {
 
 	// Create a new Grammar instance
 	g := Grammar{
-		productions: make(map[Symbol][][]Symbol),
+		Productions: make(map[Symbol][][]Symbol),
 	}
 
 	// Add some productions
@@ -58,7 +58,7 @@ func TestAddNonTerminalOnBodyFromString(t *testing.T) {
 
 	// Create a new Grammar instance
 	g := Grammar{
-		productions: make(map[Symbol][][]Symbol),
+		Productions: make(map[Symbol][][]Symbol),
 	}
 
 	// Add some productions
@@ -84,7 +84,7 @@ func TestAddProduction(t *testing.T) {
 
 	// Create a new Grammar instance
 	g := Grammar{
-		productions: make(map[Symbol][][]Symbol),
+		Productions: make(map[Symbol][][]Symbol),
 	}
 	g.AddProductionFromString("A -> a|b|{B}C")
 	g.AddProductionFromString("B -> b|{C}D")
@@ -103,7 +103,7 @@ func TestAddProductionSymbol(t *testing.T) {
 
 	// Create a new Grammar instance
 	g := Grammar{
-		productions: make(map[Symbol][][]Symbol),
+		Productions: make(map[Symbol][][]Symbol),
 	}
 	g.AddProductionFromString("A -> a|b|{B}C")
 	g.AddProductionFromString("B -> b|{C}D")
