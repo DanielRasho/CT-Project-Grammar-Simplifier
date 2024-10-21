@@ -79,9 +79,9 @@ func main() {
 		}
 	}
 
+	startSymbol := currentGrammar.NonTerminals[0]
 	// Simplify Grammar
 	newGrammar := grammar.SimplifyGrammar(&currentGrammar, true)
-	startSymbol := grammar.Symbol{Value: "E", Id: 0, IsTerminal: false}
 	fmt.Println(newGrammar.Productions[startSymbol])
 
 	// Get User Input
