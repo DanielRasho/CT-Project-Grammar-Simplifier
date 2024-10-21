@@ -137,7 +137,7 @@ func RemoveEpsilons(grammar *Grammar) *Grammar {
 		var newNonEpsilonBodies [][]Symbol
 
 		for _, body := range bodies {
-			// Reemplazar epsilon por una cadena vacía
+			// Reemplazar epsilon por una cadena vacía usando removeSymbols
 			nonEpsilonProduction := removeSymbols(&body, &EpsilonSymbol)
 
 			// Solo agregar producciones no vacías
@@ -154,6 +154,9 @@ func RemoveEpsilons(grammar *Grammar) *Grammar {
 			newGrammar.Productions[head] = newNonEpsilonBodies
 		}
 	}
+
+	// Eliminar el símbolo epsilon de la lista de terminales, si está presente
+	newGrammar.terminals = *removeSymbols(&newGrammar.terminals, &EpsilonSymbol)
 
 	// Retornar la nueva gramática
 	return &newGrammar
