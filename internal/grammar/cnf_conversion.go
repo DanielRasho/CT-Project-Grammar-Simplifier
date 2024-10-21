@@ -7,7 +7,7 @@ func CNFTerminalSubstitution(originalGrammar *Grammar) *Grammar {
 	// Paso 1: Crear una copia de la gramática original para añadir las nuevas producciones
 	newGrammar := &Grammar{
 		terminals:    originalGrammar.terminals,
-		nonTerminals: originalGrammar.nonTerminals,
+		NonTerminals: originalGrammar.NonTerminals,
 		Productions:  make(map[Symbol][][]Symbol),
 	}
 
@@ -19,7 +19,7 @@ func CNFTerminalSubstitution(originalGrammar *Grammar) *Grammar {
 		terminalToNonTerminal[terminal] = newNonTerminal
 
 		// Añadir el nuevo no terminal a la lista de no terminales
-		newGrammar.nonTerminals = append(newGrammar.nonTerminals, newNonTerminal)
+		newGrammar.NonTerminals = append(newGrammar.NonTerminals, newNonTerminal)
 
 		// Añadir la producción de nuevo no terminal -> terminal
 		newGrammar.Productions[newNonTerminal] = [][]Symbol{{terminal}}
@@ -71,7 +71,7 @@ func CNFSplitLargeProductions(originalGrammar *Grammar) *Grammar {
 	// Crear una nueva gramática para almacenar las producciones resultantes
 	newGrammar := &Grammar{
 		terminals:    originalGrammar.terminals,
-		nonTerminals: originalGrammar.nonTerminals,
+		NonTerminals: originalGrammar.NonTerminals,
 		Productions:  make(map[Symbol][][]Symbol),
 	}
 
@@ -95,7 +95,7 @@ func CNFSplitLargeProductions(originalGrammar *Grammar) *Grammar {
 				}
 
 				// Añadir el nuevo no terminal a la lista de no terminales si no está presente
-				newGrammar.nonTerminals = append(newGrammar.nonTerminals, newSymbol)
+				newGrammar.NonTerminals = append(newGrammar.NonTerminals, newSymbol)
 
 				// Añadir la nueva producción a la gramática: newSymbol -> lastSymbol2 lastSymbol1
 				newGrammar.Productions[newSymbol] = [][]Symbol{{lastSymbol2, lastSymbol1}}

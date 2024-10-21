@@ -12,7 +12,7 @@ var b1 = Symbol{isTerminal: true, value: "b", id: -1}
 // Grammar Test
 var grammarTestUselessSymbolElimination = &Grammar{
 	terminals:    []Symbol{a1, b1},
-	nonTerminals: []Symbol{S1, A1, B1},
+	NonTerminals: []Symbol{S1, A1, B1},
 	Productions: map[Symbol][][]Symbol{
 		S1: {{A1, B1}, {a1}},
 		A1: {{b1}},
@@ -22,7 +22,7 @@ var grammarTestUselessSymbolElimination = &Grammar{
 // Resultado de eliminar simbolos no alcanzables
 var expectedRemoveReachableSymbols = &Grammar{
 	terminals:    []Symbol{a1, b1},
-	nonTerminals: []Symbol{S1, A1, B1},
+	NonTerminals: []Symbol{S1, A1, B1},
 	Productions: map[Symbol][][]Symbol{
 		S1: {{A1, B1}, {a1}},
 		A1: {{b1}},
@@ -32,7 +32,7 @@ var expectedRemoveReachableSymbols = &Grammar{
 // Resultado de eliminar simbolos que no generan
 var expectedRemoveGeneratingSymbols = &Grammar{
 	terminals:    []Symbol{a1, b1},
-	nonTerminals: []Symbol{S1, A1},
+	NonTerminals: []Symbol{S1, A1},
 	Productions: map[Symbol][][]Symbol{
 		S1: {{a1}},
 		A1: {{b1}},
@@ -42,7 +42,7 @@ var expectedRemoveGeneratingSymbols = &Grammar{
 // Resultado esperado en de Grammar sin simbolos inutiles
 var expectedTestUselessSymbolElimination = &Grammar{
 	terminals:    []Symbol{a1},
-	nonTerminals: []Symbol{S1},
+	NonTerminals: []Symbol{S1},
 	Productions: map[Symbol][][]Symbol{
 		S1: {{a1}},
 	},

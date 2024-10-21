@@ -66,3 +66,17 @@ func TestRemoveLeftRecursivity(t *testing.T) {
 	newGrammar := removeLeftRecursivity(grammar)
 	fmt.Println(newGrammar.String(false))
 }
+
+func TestRemoveLeftRecursivity2(t *testing.T) {
+	// Step 2: Define the grammar
+	grammar := &Grammar{
+		Productions: make(map[Symbol][][]Symbol),
+	}
+	grammar.AddProductionFromString("S -> {S}m|{A}")
+	grammar.AddProductionFromString("A -> {A}m|{B}")
+	grammar.AddProductionFromString("B -> {B}m|{C}")
+	grammar.AddProductionFromString("C -> a")
+
+	newGrammar := removeLeftRecursivity(grammar)
+	fmt.Println(newGrammar.String(true))
+}

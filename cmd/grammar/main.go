@@ -77,7 +77,22 @@ func main() {
 			return
 		}
 	}
-	// grammar.SimplifyGrammar(&currentGrammar, true)
+
+	// Simplify Grammar
+	newGrammar := grammar.SimplifyGrammar(&currentGrammar, true)
+	startSymbol := newGrammar.NonTerminals[0]
+
+	// Get User Input
+	var input string
+	fmt.Print("Ingresar valor para verificar: ")
+	fmt.Scanln(&input)
+
+	accepted := grammar.CYKParse(newGrammar, input, startSymbol)
+	if accepted {
+		fmt.Println("La cadena es aceptada por la gramática.")
+	} else {
+		fmt.Println("La cadena NO es aceptada por la gramática.")
+	}
 }
 
 // Creates the NFA for checking if a production is valid

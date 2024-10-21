@@ -18,7 +18,7 @@ var b_21 = Symbol{isTerminal: false, value: "B_b", id: 0}
 // Grammar Test
 var grammarTestCNFConversion = &Grammar{
 	terminals:    []Symbol{a2, b2},
-	nonTerminals: []Symbol{S2, A2, B2},
+	NonTerminals: []Symbol{S2, A2, B2},
 	Productions: map[Symbol][][]Symbol{
 		S2: {{a2, A2, a2}, {b2, B2, b2}},
 		A2: {{a2}},
@@ -29,7 +29,7 @@ var grammarTestCNFConversion = &Grammar{
 // Resultado de reemplazar terminales por no terminales en producciones largas
 var expectedTestCNFCNFTerminalSubstitution = &Grammar{
 	terminals:    []Symbol{a2, b2},
-	nonTerminals: []Symbol{S2, A2, B2, a_20, b_20},
+	NonTerminals: []Symbol{S2, A2, B2, a_20, b_20},
 	Productions: map[Symbol][][]Symbol{
 		S2:   {{a_20, A2, a_20}, {b_20, B2, b_20}},
 		A2:   {{a2}},
@@ -42,7 +42,7 @@ var expectedTestCNFCNFTerminalSubstitution = &Grammar{
 // Resultado de reemplazar terminales por no terminales en producciones largas
 var expectedTestCNFSplitLargeProductions = &Grammar{
 	terminals:    []Symbol{a2, b2},
-	nonTerminals: []Symbol{S2, A2, B2, a_20, b_20, a_21, b_21},
+	NonTerminals: []Symbol{S2, A2, B2, a_20, b_20, a_21, b_21},
 	Productions: map[Symbol][][]Symbol{
 		S2:   {{a_20, a_21}, {b_20, b_21}},
 		A2:   {{a2}},

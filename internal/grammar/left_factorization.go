@@ -11,7 +11,7 @@ type leftFactorPrefix struct {
 
 func factorizeGrammar(grammar *Grammar) *Grammar {
 
-	for _, nonTerminal := range grammar.nonTerminals {
+	for _, nonTerminal := range grammar.NonTerminals {
 		if productions, exist := grammar.Productions[nonTerminal]; exist {
 			result := leftFactor(grammar, &nonTerminal, productions)
 			grammar.SetProductionBodies(nonTerminal, result)

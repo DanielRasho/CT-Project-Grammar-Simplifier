@@ -16,7 +16,7 @@ var fgh = Symbol{isTerminal: true, value: "fgh", id: -1}
 // Grammar Test
 var grammarTestUnaryElimination = &Grammar{
 	terminals:    []Symbol{abc, fgh},
-	nonTerminals: []Symbol{A, B, C, D, E},
+	NonTerminals: []Symbol{A, B, C, D, E},
 	Productions: map[Symbol][][]Symbol{
 		A: {{A}, {B}, {D}},
 		B: {{C}},
@@ -29,7 +29,7 @@ var grammarTestUnaryElimination = &Grammar{
 // Resultado esperado en de Grammar sin producciones unarias
 var expectedRemoveUnaryProductions = &Grammar{
 	terminals:    []Symbol{abc, fgh},
-	nonTerminals: []Symbol{A, B, C, D, E},
+	NonTerminals: []Symbol{A, B, C, D, E},
 	Productions: map[Symbol][][]Symbol{
 		A: {{abc}, {fgh}},
 		B: {{abc}, {fgh}},

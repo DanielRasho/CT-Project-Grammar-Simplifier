@@ -5,7 +5,7 @@ Inicializa las parejas base (A, A) para cada no terminal A y las producciones un
 */
 func InitializeUnaryPairs(originalGrammar *Grammar) map[Symbol][]Symbol {
 
-	nonTerminals := originalGrammar.nonTerminals
+	nonTerminals := originalGrammar.NonTerminals
 	unaryBase := make(map[Symbol][]Symbol)
 
 	// Se crean las bases unarias por cada encabezado de producciones de las gramáticas
@@ -86,7 +86,7 @@ func RemoveUnaryProductions(originalGrammar *Grammar, nonTerminals []Symbol) *Gr
 
 	newGrammar := &Grammar{
 		terminals:    originalGrammar.terminals,
-		nonTerminals: originalGrammar.nonTerminals,
+		NonTerminals: originalGrammar.NonTerminals,
 		Productions:  make(map[Symbol][][]Symbol),
 	}
 

@@ -29,7 +29,7 @@ func (s *Symbol) String() string {
 
 type Grammar struct {
 	terminals    []Symbol              // List of all cached terminals in the grammar.
-	nonTerminals []Symbol              // List of all cached NON terminals in the grammar.
+	NonTerminals []Symbol              // List of all cached NON terminals in the grammar.
 	Productions  map[Symbol][][]Symbol // The actual productions.
 }
 
@@ -37,12 +37,12 @@ type Grammar struct {
 func (g *Grammar) String(verbose bool) string {
 	var sb strings.Builder
 	if verbose {
-		sb.WriteString(fmt.Sprintf("NonTerminals: %v\n", getSymbolSliceString(&g.nonTerminals)))
+		sb.WriteString(fmt.Sprintf("NonTerminals: %v\n", getSymbolSliceString(&g.NonTerminals)))
 		sb.WriteString(fmt.Sprintf("Terminals: %v\n\n", getSymbolSliceString(&g.terminals)))
 	}
 
 	// Recorrer las producciones según el orden de los no terminales
-	for _, head := range g.nonTerminals {
+	for _, head := range g.NonTerminals {
 		if bodies, exists := g.Productions[head]; exists {
 			sb.WriteString(head.String())
 			sb.WriteString(" -> ")
@@ -88,12 +88,12 @@ func (g *Grammar) AddProductionFromString(production string) {
 	// If production is not registered create it
 	if _, exist := g.Productions[head]; !exist {
 		// Add new NON terminal
-		g.nonTerminals = append(g.nonTerminals, head)
+		g.NonTerminals = append(g.NonTerminals, head)
 		bodySymbols := make([][]Symbol, 0)
 		// Add bodies
 		for _, v := range bodyItems {
 			body, nonTerminal, terminal := splitStringIntoSymbols(v)
-			g.nonTerminals = append(g.nonTerminals, nonTerminal...)
+			g.NonTerminals = append(g.NonTerminals, nonTerminal...)
 			g.terminals = append(g.terminals, terminal...)
 			bodySymbols = append(bodySymbols, body)
 		}
@@ -105,7 +105,7 @@ func (g *Grammar) AddProductionFromString(production string) {
 		existentBodyItems := g.Productions[head]
 		for _, v := range bodyItems {
 			body, nonTerminal, terminal := splitStringIntoSymbols(v)
-			g.nonTerminals = append(g.nonTerminals, nonTerminal...)
+			g.NonTerminals = append(g.NonTerminals, nonTerminal...)
 			g.terminals = append(g.terminals, terminal...)
 			existentBodyItems = append(existentBodyItems, body)
 		}
@@ -113,14 +113,14 @@ func (g *Grammar) AddProductionFromString(production string) {
 		existentBodyItems = removeDuplicatesSlices(existentBodyItems)
 		g.Productions[head] = existentBodyItems
 	}
-	g.nonTerminals = removeDuplicatesSymbols(g.nonTerminals)
+	g.NonTerminals = removeDuplicatesSymbols(g.NonTerminals)
 	g.terminals = removeDuplicatesSymbols(g.terminals)
 }
 
 func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 	// Find the highest ID for the given head value in nonTerminals
 	newID := 0
-	for _, nonTerminal := range g.nonTerminals {
+	for _, nonTerminal := range g.NonTerminals {
 		if nonTerminal.value == head {
 			newID = nonTerminal.id + 1 // Increment the ID to be unique
 		}
@@ -138,7 +138,7 @@ func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 
 	// UPDATE nonTerminals an Terminals list:
 	// Add the new head to the nonTerminals list if it's not already there
-	g.nonTerminals = append(g.nonTerminals, newHead)
+	g.NonTerminals = append(g.NonTerminals, newHead)
 
 	// Add new symbols from the body to Terminals list.
 	for _, body := range bodies {
@@ -157,7 +157,7 @@ func (g *Grammar) AddProduction(head string, bodies [][]Symbol) *Symbol {
 func (g *Grammar) AddProductionBodies(head Symbol, bodies [][]Symbol) *Symbol {
 
 	if _, exist := g.Productions[head]; !exist {
-		g.nonTerminals = append(g.nonTerminals, head)
+		g.NonTerminals = append(g.NonTerminals, head)
 		g.Productions[head] = bodies
 	} else {
 		g.Productions[head] = append(g.Productions[head], bodies...)
@@ -194,7 +194,7 @@ func (g *Grammar) SetProductionBodies(head Symbol, bodies [][]Symbol) bool {
 }
 
 func (g *Grammar) RecalculateTerminals() {
-	g.terminals = make([]Symbol, len(g.terminals))
+	g.terminals = make([]Symbol, 0)
 	for _, bodies := range g.Productions {
 		for _, body := range bodies {
 			for _, symbol := range body {
@@ -410,7 +410,7 @@ func compareGrammars(g1, g2 *Grammar) bool {
 	}
 
 	// Comparar no terminales
-	if !compareSymbolSlices(g1.nonTerminals, g2.nonTerminals) {
+	if !compareSymbolSlices(g1.NonTerminals, g2.NonTerminals) {
 		return false
 	}
 
@@ -493,12 +493,12 @@ func OrderProductionsByNonTerminals(originalGrammar *Grammar) *Grammar {
 	// Crear una nueva gramática para almacenar las producciones ordenadas
 	orderedGrammar := &Grammar{
 		terminals:    originalGrammar.terminals,
-		nonTerminals: originalGrammar.nonTerminals,
+		NonTerminals: originalGrammar.NonTerminals,
 		Productions:  make(map[Symbol][][]Symbol),
 	}
 
 	// Recorrer la lista de no terminales en el orden dado
-	for _, nonTerminal := range originalGrammar.nonTerminals {
+	for _, nonTerminal := range originalGrammar.NonTerminals {
 		// Si existen producciones para este no terminal en la gramática original
 		if productions, exists := originalGrammar.Productions[nonTerminal]; exists {
 			// Añadir las producciones a la gramática ordenada en el mismo orden de los no terminales
@@ -514,7 +514,7 @@ func FindHeadsProducingTerminal(grammar *Grammar, terminalValue string) []string
 	heads := []string{} // Lista para almacenar los heads que producen directamente el terminal
 
 	// Recorrer los no terminales en el orden de la lista de nonTerminals
-	for _, nonTerminal := range grammar.nonTerminals {
+	for _, nonTerminal := range grammar.NonTerminals {
 		// Buscar si existen producciones para ese no terminal
 		if bodies, exists := grammar.Productions[nonTerminal]; exists {
 			for _, body := range bodies {
@@ -535,7 +535,7 @@ func FindHeadsProducingNonTerminals(grammar *Grammar, nonTerminal1, nonTerminal2
 	heads := []string{} // Lista para almacenar los heads que producen el par de no terminales
 
 	// Recorrer los no terminales en el orden de la lista de nonTerminals
-	for _, nonTerminal := range grammar.nonTerminals {
+	for _, nonTerminal := range grammar.NonTerminals {
 		// Buscar si existen producciones para ese no terminal
 		if bodies, exists := grammar.Productions[nonTerminal]; exists {
 			for _, body := range bodies {

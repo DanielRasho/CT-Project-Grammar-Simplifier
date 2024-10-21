@@ -13,7 +13,7 @@ var bCYK = Symbol{isTerminal: true, value: "b", id: -1}
 // Definir la gramática
 var testGrammar = &Grammar{
 	terminals:    []Symbol{aCYK, bCYK},
-	nonTerminals: []Symbol{SCYK, ACYK, BCYK, CCYK},
+	NonTerminals: []Symbol{SCYK, ACYK, BCYK, CCYK},
 	Productions: map[Symbol][][]Symbol{
 		SCYK: {{ACYK, BCYK}, {BCYK, CCYK}},
 		ACYK: {{BCYK, ACYK}, {aCYK}},

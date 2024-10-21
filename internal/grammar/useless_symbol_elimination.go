@@ -5,7 +5,7 @@ Función que encuentra los símbolos que generan cadenas de terminales.
 */
 func findGeneratingSymbols(originalGrammar *Grammar) ([]Symbol, []Symbol) {
 	// Obtener no terminales y terminales
-	nonTerminals := originalGrammar.nonTerminals
+	nonTerminals := originalGrammar.NonTerminals
 	terminals := originalGrammar.terminals
 
 	// Listas para almacenar los símbolos generadores y no generadores
@@ -60,7 +60,7 @@ func findGeneratingSymbols(originalGrammar *Grammar) ([]Symbol, []Symbol) {
 Función que encuentra los símbolos alcanzables a partir de un símbolo inicial.
 */
 func findReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) ([]Symbol, []Symbol) {
-	nonTerminals := originalGrammar.nonTerminals
+	nonTerminals := originalGrammar.NonTerminals
 
 	// Listas para símbolos alcanzables y no alcanzables
 	var reachableSymbols []Symbol
@@ -123,7 +123,7 @@ func RemoveNonGeneratingSymbols(originalGrammar *Grammar) *Grammar {
 	// Crear una nueva gramática vacía
 	newGrammar := &Grammar{
 		terminals:    []Symbol{},
-		nonTerminals: []Symbol{},
+		NonTerminals: []Symbol{},
 		Productions:  make(map[Symbol][][]Symbol),
 	}
 
@@ -153,7 +153,7 @@ func RemoveNonGeneratingSymbols(originalGrammar *Grammar) *Grammar {
 		// Si hay producciones válidas, añadirlas a la nueva gramática
 		if len(validProductions) > 0 {
 			newGrammar.Productions[head] = validProductions
-			newGrammar.nonTerminals = append(newGrammar.nonTerminals, head)
+			newGrammar.NonTerminals = append(newGrammar.NonTerminals, head)
 		}
 	}
 
@@ -168,8 +168,8 @@ func RemoveNonGeneratingSymbols(originalGrammar *Grammar) *Grammar {
 					}
 				} else {
 					// Añadir a la lista de no terminales si no está ya presente
-					if !containsSymbol(newGrammar.nonTerminals, symbol) {
-						newGrammar.nonTerminals = append(newGrammar.nonTerminals, symbol)
+					if !containsSymbol(newGrammar.NonTerminals, symbol) {
+						newGrammar.NonTerminals = append(newGrammar.NonTerminals, symbol)
 					}
 				}
 			}
@@ -189,7 +189,7 @@ func RemoveNonReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) *Gr
 	// Crear una nueva gramática vacía
 	newGrammar := &Grammar{
 		terminals:    []Symbol{},
-		nonTerminals: []Symbol{},
+		NonTerminals: []Symbol{},
 		Productions:  make(map[Symbol][][]Symbol),
 	}
 
@@ -202,7 +202,7 @@ func RemoveNonReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) *Gr
 
 		// Añadir las producciones válidas a la nueva gramática
 		newGrammar.Productions[head] = productions
-		newGrammar.nonTerminals = append(newGrammar.nonTerminals, head)
+		newGrammar.NonTerminals = append(newGrammar.NonTerminals, head)
 	}
 
 	// Recorrer la nueva gramática para identificar los terminales y no terminales
@@ -216,8 +216,8 @@ func RemoveNonReachableSymbols(originalGrammar *Grammar, startSymbol Symbol) *Gr
 					}
 				} else {
 					// Añadir a la lista de no terminales si no está ya presente
-					if !containsSymbol(newGrammar.nonTerminals, symbol) {
-						newGrammar.nonTerminals = append(newGrammar.nonTerminals, symbol)
+					if !containsSymbol(newGrammar.NonTerminals, symbol) {
+						newGrammar.NonTerminals = append(newGrammar.NonTerminals, symbol)
 					}
 				}
 			}

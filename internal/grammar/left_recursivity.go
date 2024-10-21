@@ -9,21 +9,24 @@ func removeLeftRecursivity(originalGrammar *Grammar) *Grammar {
 	// Create a new grammar
 	newGrammar := Grammar{
 		Productions:  make(map[Symbol][][]Symbol),
-		nonTerminals: make([]Symbol, len(originalGrammar.nonTerminals)),
-		terminals:    make([]Symbol, len(originalGrammar.terminals)),
+		NonTerminals: make([]Symbol, 0),
+		terminals:    make([]Symbol, 0),
 	}
 	// Deep copy nonTerminals and Terminals
-	copy(newGrammar.nonTerminals, originalGrammar.nonTerminals)
+	// copy(newGrammar.nonTerminals, originalGrammar.nonTerminals)
 	copy(newGrammar.terminals, originalGrammar.terminals)
 
 	for head := range originalGrammar.Productions {
 
+		fmt.Println(newGrammar.String(true))
+
 		AllBodyVariants := findAllBodyVariants(&head, originalGrammar)
 
-		// Create the two new pro
+		// Create the two new productions
 		recursiveBodies := make([][]Symbol, 0)    // List of bodies that has left recursivity
 		nonRecursiveBodies := make([][]Symbol, 0) // List of bodies that DO Not have recursivityh
 
+		// Separate recursive bodies from non recursive bodies
 		for _, bodyVariant := range AllBodyVariants {
 			if bodyVariant[0] == head {
 				recursiveBodies = append(recursiveBodies, bodyVariant)

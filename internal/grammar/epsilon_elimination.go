@@ -64,7 +64,7 @@ func identifyIndirectNullables(grammar *Grammar, nullabes []Symbol) *[]Symbol {
 func ReplaceNullables(grammar *Grammar, nullables []Symbol) *Grammar {
 	newGrammar := Grammar{
 		terminals:    grammar.terminals,
-		nonTerminals: grammar.nonTerminals,
+		NonTerminals: grammar.NonTerminals,
 		Productions:  make(map[Symbol][][]Symbol)}
 
 	// Paso 1. Leer cada body de la gramática por cada head
@@ -129,7 +129,7 @@ func RemoveEpsilons(grammar *Grammar) *Grammar {
 	// Crear una nueva gramática para almacenar las producciones sin epsilon
 	newGrammar := Grammar{
 		terminals:    grammar.terminals,
-		nonTerminals: grammar.nonTerminals,
+		NonTerminals: grammar.NonTerminals,
 		Productions:  make(map[Symbol][][]Symbol)}
 
 	// Iterar sobre las cabezas de la gramática y sus producciones
