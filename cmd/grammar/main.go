@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	io "github.com/DanielRasho/Computation-Theory/internal/IO"
 	ast "github.com/DanielRasho/Computation-Theory/internal/abstract_syntax_tree"
@@ -81,8 +82,15 @@ func main() {
 
 	startSymbol := currentGrammar.NonTerminals[0]
 	// Simplify Grammar
+
+	// Capturar el tiempo de inicio
+	start := time.Now()
 	newGrammar := grammar.SimplifyGrammar(&currentGrammar, true)
+	// Capturar el tiempo después de la simplificación
+	elapsed := time.Since(start)
 	fmt.Println(newGrammar.Productions[startSymbol])
+	// Imprimir el tiempo que tomó la simplificación
+	fmt.Printf("Tiempo de simplificación: %s\n", elapsed)
 
 	// Get User Input
 	var input string

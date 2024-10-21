@@ -64,6 +64,9 @@ nix run '.#grammar' --experimental-features 'nix-command flakes'
 
 # Diseño de la Apliación
 
+
+
+
 # Discusión
 El principal contratiempo en el desarrollo fue un mal diseño preliminar. Al principio se definio un agramatica como un diccionario donde las llaves eran los NO terminales y los cuerpos eran un lista de los cuerpos.
 
