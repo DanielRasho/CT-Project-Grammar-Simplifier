@@ -1,24 +1,27 @@
 package grammar
 
 /*
-// Inicializa las parejas base (A, A) para cada no terminal A y las producciones unarias en su mismo conjunto
-func initializeUnaryPairs(originalGrammar *Grammar) map[string][]string {
-	nonTerminals := getNonTerminals(originalGrammar)
-	unaryBase := make(map[string][]string)
+Inicializa las parejas base (A, A) para cada no terminal A y las producciones unarias en su mismo conjunto
+*/
+func initializeUnaryPairs(originalGrammar *Grammar) map[Symbol][]Symbol {
+
+	nonTerminals := originalGrammar.nonTerminals
+	unaryBase := make(map[Symbol][]Symbol)
 
 	// Se crean las bases unarias por cada encabezado de producciones de las gramáticas
-	for key := range nonTerminals {
-		unaryBase[key] = []string{key} // Cada no terminal se inicializa con su propia pareja
+	for i := range nonTerminals {
+		key := nonTerminals[i]
+		unaryBase[key] = []Symbol{key} // Cada no terminal se inicializa con su propia pareja
 	}
 
 	// Añadir los unarios de una misma producción a unaryBase correspondiente a su encabezado
-	for head, productions := range *originalGrammar {
+	for head, productions := range originalGrammar.productions {
 		for _, production := range productions {
 			// Si la producción es unaria
 			if isUnary(production, nonTerminals) {
 				// Si la producción no está en unaryBase, añadirla
-				if !contains(unaryBase[head], production) {
-					unaryBase[head] = append(unaryBase[head], production)
+				if !containsSymbol(unaryBase[head], production[0]) {
+					unaryBase[head] = append(unaryBase[head], production[0])
 				}
 			}
 		}
@@ -27,10 +30,12 @@ func initializeUnaryPairs(originalGrammar *Grammar) map[string][]string {
 	return unaryBase
 }
 
-// Encuentra todas las parejas unarias de toda la gramática
-func findUnaryPairs(unaryBase map[string][]string) map[string][]string {
+/*
+Encuentra todas las parejas unarias de toda la gramática
+*/
+func findUnaryPairs(unaryBase map[Symbol][]Symbol) map[Symbol][]Symbol {
 	// Crear un nuevo mapa para almacenar las parejas unarias extendidas
-	unaryPairs := make(map[string][]string)
+	unaryPairs := make(map[Symbol][]Symbol)
 
 	// Inicializar con las parejas unarias originales
 	for key, value := range unaryBase {
@@ -56,9 +61,8 @@ func findUnaryPairs(unaryBase map[string][]string) map[string][]string {
 					if lastValue == sub_key {
 						// Agregar todos los valores de la sub_llave a la llave original, asegurándose de no duplicar
 						for _, sv := range sub_value {
-
-							// Si los valores actuales no contienene los sub_valores añadirlo
-							if !contains(unaryPairs[key], sv) {
+							// Si los valores actuales no contienen los sub_valores añadirlo
+							if !containsSymbol(unaryPairs[key], sv) {
 								unaryPairs[key] = append(unaryPairs[key], sv)
 								expanded = true // Si se agregó un nuevo elemento, se establece la bandera
 							}
@@ -73,28 +77,32 @@ func findUnaryPairs(unaryBase map[string][]string) map[string][]string {
 	return unaryPairs
 }
 
-// Elimina las producciones unarias y ajusta la gramática
-func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[string][]string, nonTerminals map[string]struct{}) *Grammar {
-	newGrammar := make(Grammar)
+/*
+Elimina las producciones unarias y ajusta la gramática
+*/
+func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[Symbol][]Symbol, nonTerminals []Symbol) *Grammar {
+	newGrammar := &Grammar{
+		terminals:    originalGrammar.terminals,
+		nonTerminals: originalGrammar.nonTerminals,
+		productions:  make(map[Symbol][][]Symbol),
+	}
 
-	// Hacer una nueva gramática y para el head de cada unaryPairs
-	// traer las producciones no unarias
+	// Iterar sobre cada no terminal en unaryPairs
 	for key, values := range unaryPairs {
-		// Producciones para el no terminal actual
-		var productions []string
+		var productions [][]Symbol
 
-		// Para cada cabeza de la gramática original
-		for head := range *originalGrammar {
+		// Recorrer los no terminales en la gramática original
+		for head := range originalGrammar.productions {
 			if key == head {
-				// Por cada value en las producciones unarias
+				// Para cada símbolo value en los pares unarios de la clave
 				for _, value := range values {
 
-					// Existe el value de unarypair en la gramatica original como encabezado
-					if newProductions, exists := (*originalGrammar)[value]; exists {
-						// Por cada producción del encabezado
+					// Si el valor de unaryPairs existe como encabezado en la gramática original
+					if newProductions, exists := originalGrammar.productions[value]; exists {
+						// Por cada producción de ese encabezado
 						for _, newProduction := range newProductions {
-							// Si no es unario añadirlo a las producciones
-							if !isUnary(newProduction, nonTerminals) {
+							// Si no es una producción unaria y no está ya en la lista, añadirla a las producciones
+							if !isUnary(newProduction, nonTerminals) && !containsProduction(productions, newProduction) {
 								productions = append(productions, newProduction)
 							}
 						}
@@ -103,17 +111,30 @@ func removeUnaryProductions(originalGrammar *Grammar, unaryPairs map[string][]st
 			}
 		}
 
-		// Asigna las producciones no unarias a la nueva gramática
-		newGrammar[key] = productions
+		// Asignar las producciones no unarias a la nueva gramática
+		newGrammar.productions[key] = productions
 	}
 
-	return &newGrammar
+	return newGrammar
 }
 
-// Comprueba si una producción es unaria (solo contiene un no terminal)
-func isUnary(production string, nonTerminals map[string]struct{}) bool {
-	// Comprobar si la producción es un no terminal en el mapa
-	_, exists := nonTerminals[production]
-	return exists
-}
+/*
+Comprueba si una producción es unaria (solo contiene un no terminal)
 */
+func isUnary(production []Symbol, nonTerminals []Symbol) bool {
+	// La producción debe tener exactamente un símbolo para ser unaria
+	if len(production) != 1 {
+		return false
+	}
+
+	// Obtener el único símbolo de la producción
+	symbol := production[0]
+
+	// Verificar si el símbolo es un no terminal
+	if !symbol.isTerminal && containsSymbol(nonTerminals, symbol) {
+		return true
+	}
+
+	// Si no es un no terminal, no es una producción unaria
+	return false
+}

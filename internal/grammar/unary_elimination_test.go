@@ -1,112 +1,142 @@
 package grammar
 
-/*
 import (
 	"testing"
 )
 
-// Datos de prueba
-var grammarTestUnaryElimination = Grammar{
-	"A": {"A", "B", "D"},
-	"B": {"C"},
-	"C": {"abc", "D"},
-	"D": {"C", "E"},
-	"E": {"fgh"},
+// Simbolos para la gramática
+var A = Symbol{isTerminal: false, value: "A", id: 1}
+var B = Symbol{isTerminal: false, value: "B", id: 1}
+var C = Symbol{isTerminal: false, value: "C", id: 1}
+var D = Symbol{isTerminal: false, value: "D", id: 1}
+var E = Symbol{isTerminal: false, value: "E", id: 1}
+var abc = Symbol{isTerminal: true, value: "abc", id: -1}
+var fgh = Symbol{isTerminal: true, value: "fgh", id: -1}
+
+// Grammar Test
+var grammarTestUnaryElimination = &Grammar{
+	terminals:    []Symbol{abc, fgh},
+	nonTerminals: []Symbol{A, B, C, D, E},
+	productions: map[Symbol][][]Symbol{
+		A: {{A}, {B}, {D}},
+		B: {{C}},
+		C: {{abc}, {D}},
+		D: {{C}, {E}},
+		E: {{fgh}},
+	},
 }
 
-var nonTerminalsTest = map[string]struct{}{
-	"A": {},
-	"B": {},
-	"C": {},
-	"D": {},
-	"E": {},
+// Resultado esperado en de Grammar sin producciones unarias
+var expectedRemoveUnaryProductions = &Grammar{
+	terminals:    []Symbol{abc, fgh},
+	nonTerminals: []Symbol{A, B, C, D, E},
+	productions: map[Symbol][][]Symbol{
+		A: {{abc}, {fgh}},
+		B: {{abc}, {fgh}},
+		C: {{abc}, {fgh}},
+		D: {{abc}, {fgh}},
+		E: {{fgh}},
+	},
 }
 
-var expectedUnaryPairs = map[string][]string{
-	"A": {"A", "B", "D"},
-	"B": {"B", "C"},
-	"C": {"C", "D"},
-	"D": {"D", "C", "E"},
-	"E": {"E"},
+// No terminales de Grammar
+var nonTerminalsTest = []Symbol{A, B, C, D, E}
+
+// Resultado esperado para encontrar Pares Unarios Base
+var expectedinitializeUnaryPairs = map[Symbol][]Symbol{
+	A: {A, B, D},
+	B: {B, C},
+	C: {C, D},
+	D: {D, C, E},
+	E: {E},
 }
 
-var expectedFindUnaryPairs = map[string][]string{
-	"A": {"A", "B", "D", "C", "E"},
-	"B": {"B", "C", "D", "E"},
-	"C": {"C", "D", "E"},
-	"D": {"D", "C", "E"},
-	"E": {"E"},
+// Resultado esperado para encontrar Pares Unarios
+var expectedFindUnaryPairs = map[Symbol][]Symbol{
+	A: {A, B, D, C, E},
+	B: {B, C, D, E},
+	C: {C, D, E},
+	D: {D, C, E},
+	E: {E},
 }
 
-var expectedRemoveUnaryProductions = Grammar{
-	"A": {"abc", "fgh"},
-	"B": {"abc", "fgh"},
-	"C": {"abc", "fgh"},
-	"D": {"abc", "fgh"},
-	"E": {"fgh"},
-}
+// TestInitializeUnaryPairs verifica la correcta inicialización de pares unarios.
+func TestInitializeUnaryPairs(t *testing.T) {
+	// Se inicializan las parejas unarias usando la gramática de prueba
+	unaryPairs := initializeUnaryPairs(grammarTestUnaryElimination)
 
-// Test para la base de parejas unarias
-func TestUnaryPairs(t *testing.T) {
-	result := initializeUnaryPairs(&grammarTestUnaryElimination)
-
-	// Comprobar si los resultados son iguales
-	for key, expectedValues := range expectedUnaryPairs {
-		resultValues, exists := result[key]
+	// Verificar que los pares unarios coinciden con los esperados
+	for nonTerminal, expectedValues := range expectedinitializeUnaryPairs {
+		resultValues, exists := unaryPairs[nonTerminal]
 		if !exists {
-			t.Errorf("Se esperaba que %s existiera en los resultados", key)
+			t.Errorf("Error: No se encontraron pares unarios para %v", nonTerminal)
 			continue
 		}
-		if !equalSlices(resultValues, expectedValues) {
-			t.Errorf("Para %s, se esperaba %v, pero se obtuvo %v", key, expectedValues, resultValues)
+
+		// Verificar que el número de valores sea correcto
+		if len(resultValues) != len(expectedValues) {
+			t.Errorf("Error: El número de pares unarios para %v no es correcto. Se esperaba %v, pero se obtuvo %v", nonTerminal, len(expectedValues), len(resultValues))
+		}
+
+		// Verificar que cada valor esperado esté presente en los resultados
+		for _, expectedValue := range expectedValues {
+			if !containsSymbol(resultValues, expectedValue) {
+				t.Errorf("Error: El valor %v no se encontró en los pares unarios de %v. Pares actuales: %v", expectedValue, nonTerminal, resultValues)
+			}
 		}
 	}
 }
 
-// Test para encontrar las parejas unarias de toda la gramática
+// TestFindUnaryPairs verifica la correcta expansión de las parejas unarias.
 func TestFindUnaryPairs(t *testing.T) {
-	result := findUnaryPairs(expectedUnaryPairs)
+	// Se inicializan los pares unarios
+	unaryBase := initializeUnaryPairs(grammarTestUnaryElimination)
 
-	// Comprobar si los resultados son iguales
-	for key, expectedValues := range expectedFindUnaryPairs {
-		resultValues, exists := result[key]
+	// Se expanden las parejas unarias utilizando findUnaryPairs
+	unaryPairs := findUnaryPairs(unaryBase)
+
+	// Verificar que los pares unarios coinciden con los esperados
+	for nonTerminal, expectedValues := range expectedFindUnaryPairs {
+		resultValues, exists := unaryPairs[nonTerminal]
 		if !exists {
-			t.Errorf("Se esperaba que %s existiera en los resultados", key)
+			t.Errorf("Error: No se encontraron pares unarios para %v", nonTerminal)
 			continue
 		}
-		if !equalSlices(resultValues, expectedValues) {
-			t.Errorf("Para %s, se esperaba %v, pero se obtuvo %v", key, expectedValues, resultValues)
+
+		// Verificar que el número de valores sea correcto
+		if len(resultValues) != len(expectedValues) {
+			t.Errorf("Error: El número de pares unarios para %v no es correcto. Se esperaba %v, pero se obtuvo %v", nonTerminal, len(expectedValues), len(resultValues))
+		}
+
+		// Verificar que cada valor esperado esté presente en los resultados
+		for _, expectedValue := range expectedValues {
+			if !containsSymbol(resultValues, expectedValue) {
+				t.Errorf("Error: El valor %v no se encontró en los pares unarios de %v. Pares actuales: %v", expectedValue, nonTerminal, resultValues)
+			}
 		}
 	}
 }
 
-// Test para remover producciones unarias
+// Test for removeUnaryProductions
 func TestRemoveUnaryProductions(t *testing.T) {
-	result := removeUnaryProductions(&grammarTestUnaryElimination, expectedFindUnaryPairs, nonTerminalsTest)
+	// Execute the removeUnaryProductions function
+	resultGrammar := removeUnaryProductions(grammarTestUnaryElimination, expectedFindUnaryPairs, nonTerminalsTest)
 
-	// Comprobar si los resultados son iguales
-	for key, expectedValues := range expectedRemoveUnaryProductions {
-		resultValues, exists := (*result)[key]
+	// Compare the result with the expected output
+	for key, expectedProductions := range expectedRemoveUnaryProductions.productions {
+		resultProductions, exists := resultGrammar.productions[key]
 		if !exists {
-			t.Errorf("Se esperaba que %s existiera en los resultados", key)
-			continue
+			t.Errorf("Error: No producciones encontradas para %v", key)
 		}
-		if !equalSlices(resultValues, expectedValues) {
-			t.Errorf("Para %s, se esperaba %v, pero se obtuvo %v", key, expectedValues, resultValues)
-		}
-	}
-}
 
-// Función para comparar dos slices de strings
-func equalSlices(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
+		if len(expectedProductions) != len(resultProductions) {
+			t.Errorf("Error: Longitud de producciones incorrecta para %v. Esperado %v, pero se obtuvo %v", key, expectedProductions, resultProductions)
+		}
+
+		for _, production := range expectedProductions {
+			if !containsProduction(resultProductions, production) {
+				t.Errorf("Error: Se esperaba %v en %v, pero no se encontró", production, key)
+			}
 		}
 	}
-	return true
 }
-*/

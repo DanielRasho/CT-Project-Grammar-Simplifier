@@ -236,3 +236,107 @@ func containsSymbol(slice []Symbol, item Symbol) bool {
 	}
 	return false
 }
+
+// Verifica si una producción ya existe en la lista de producciones
+func containsProduction(productions [][]Symbol, production []Symbol) bool {
+	for _, p := range productions {
+		if len(p) == len(production) {
+			match := true
+			for i := range p {
+				if p[i] != production[i] {
+					match = false
+					break
+				}
+			}
+			if match {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Helper function que verifica si una producción está compuesta solo de símbolos generadores.
+func isComposedOfSymbol(generatingSymbols []Symbol, production []Symbol) bool {
+	generatingSet := make(map[Symbol]struct{})
+	for _, sym := range generatingSymbols {
+		generatingSet[sym] = struct{}{}
+	}
+
+	for _, sym := range production {
+		if _, exists := generatingSet[sym]; !exists {
+			return false
+		}
+	}
+	return true
+}
+
+// Helper function para obtener las claves de un mapa.
+func getKeys(m map[Symbol]struct{}) []Symbol {
+	keys := make([]Symbol, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// Función auxiliar para comparar dos gramáticas
+func compareGrammars(g1, g2 *Grammar) bool {
+	// Comparar terminales
+	if !compareSymbolSlices(g1.terminals, g2.terminals) {
+		return false
+	}
+
+	// Comparar no terminales
+	if !compareSymbolSlices(g1.nonTerminals, g2.nonTerminals) {
+		return false
+	}
+
+	// Comparar producciones
+	if len(g1.productions) != len(g2.productions) {
+		return false
+	}
+
+	for head, g1Productions := range g1.productions {
+		g2Productions, exists := g2.productions[head]
+		if !exists {
+			return false
+		}
+
+		if !compareProductionSlices(g1Productions, g2Productions) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Función auxiliar para comparar dos slices de símbolos
+func compareSymbolSlices(s1, s2 []Symbol) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Función auxiliar para comparar dos slices de producciones
+func compareProductionSlices(p1, p2 [][]Symbol) bool {
+	if len(p1) != len(p2) {
+		return false
+	}
+
+	for i := range p1 {
+		if !compareSymbolSlices(p1[i], p2[i]) {
+			return false
+		}
+	}
+
+	return true
+}
